@@ -1,0 +1,1325 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Plotter Multivariable — Cálculo III | Escuela Naval de Cadetes «Almirante Padilla»</title>
+<meta name="description" content="Aplicación interactiva del Volumen IV (Cálculo multivariable y aplicaciones): superficies en 3D, curvas de nivel e isocostos, derivadas parciales, máximos y mínimos, integrales dobles, ejercicios resueltos paso a paso y taller tipo ICFES autocalificable.">
+<meta name="author" content="Juan Carlos Acosta Jiménez, PhD.">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#0A2D5A" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#071320" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='5' fill='%230A2D5A'/%3E%3Cpath d='M4 23 C10 23 10 9 16 9 C22 9 22 23 28 23' stroke='%23B08D3A' stroke-width='2.6' fill='none' stroke-linecap='round'/%3E%3Ccircle cx='16' cy='9' r='2.6' fill='%23E6EEF7'/%3E%3C/svg%3E">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Plotter Multivariable — Cálculo III">
+<meta property="og:description" content="Superficies, isocostos, derivadas parciales, óptimos e integrales dobles, con taller tipo ICFES.">
+<style>
+/* Mesa de trabajo: lienzo grande a la izquierda, instrumentos a la derecha; una columna en pantalla angosta. */
+:root{
+  --bg:#E9EDF2; --panel:#FFFFFF; --panel-2:#F3F6FA; --ink:#10243E;
+  --ink-soft:#4A5B70; --ink-faint:#8A99AC; --line:#CBD6E2;
+  --accent:#9A7A2E; --on-accent:#FFF8E8; --on-btn:#FFFFFF;
+  --grid:#C3D0DE;
+  --lo:#2E6BA8; --hi:#B08D3A;
+  --cut:#A8201A; --crit:#1F6B4C; --col:#6B3FA0;
+  --ok:#1F6B4C; --ok-bg:#E6F2EC; --bad:#9B1923; --bad-bg:#FBEAEA;
+  --shadow:0 1px 2px rgba(16,36,62,.08),0 8px 24px rgba(16,36,62,.07);
+  --f-d:"Barlow Condensed",ui-sans-serif,system-ui,sans-serif;
+  --f-b:"Barlow","Helvetica Neue",system-ui,sans-serif;
+  --f-m:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#071320; --panel:#0E2135; --panel-2:#132B43; --ink:#E6EEF7;
+    --ink-soft:#9FB3C8; --ink-faint:#64798F; --line:#1F3B57;
+    --accent:#D8B45C; --on-accent:#0B1726; --on-btn:#09192B; --grid:#1B3350;
+    --lo:#5C9FDC; --hi:#E0BA63; --cut:#E8614F; --crit:#44C08A; --col:#B08BE0;
+    --ok:#44C08A; --ok-bg:#13301F; --bad:#E8614F; --bad-bg:#331316;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 28px rgba(0,0,0,.35);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#071320; --panel:#0E2135; --panel-2:#132B43; --ink:#E6EEF7;
+  --ink-soft:#9FB3C8; --ink-faint:#64798F; --line:#1F3B57;
+  --accent:#D8B45C; --on-accent:#0B1726; --on-btn:#09192B; --grid:#1B3350;
+  --lo:#5C9FDC; --hi:#E0BA63; --cut:#E8614F; --crit:#44C08A; --col:#B08BE0;
+  --ok:#44C08A; --ok-bg:#13301F; --bad:#E8614F;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 28px rgba(0,0,0,.35);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-b);font-size:15px;line-height:1.5;margin:0}
+.wrap{max-width:1280px;margin:0 auto;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:22px 36px}
+
+header{border-bottom:2px solid var(--accent);padding-bottom:14px;margin-bottom:16px}
+.eyebrow{font-family:var(--f-d);font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 2px}
+h1{font-family:var(--f-d);font-weight:600;font-size:clamp(28px,5vw,42px);margin:0;line-height:1.05;text-wrap:balance}
+.sub{color:var(--ink-soft);margin:6px 0 0;max-width:64ch;font-size:14.5px}
+
+.tabs{display:flex;gap:4px;margin:16px 0 10px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.tabs button{font-family:var(--f-d);font-size:16px;letter-spacing:.07em;text-transform:uppercase;
+  padding:8px 13px;cursor:pointer;background:none;border:0;border-bottom:3px solid transparent;
+  color:var(--ink-faint);margin-bottom:-1px;transition:.14s}
+.tabs button:hover{color:var(--ink)}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent);font-weight:600}
+
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;align-items:center}
+.chips-lab{font-family:var(--f-d);font-size:13px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-faint);margin-right:3px}
+.chips button{font-family:var(--f-b);font-size:12.5px;padding:5px 11px;border-radius:2px;cursor:pointer;
+  background:var(--panel);color:var(--ink-soft);border:1px solid var(--line);transition:.14s}
+.chips button:hover{border-color:var(--accent);color:var(--ink)}
+.chips button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:600}
+
+.grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:880px){.grid{grid-template-columns:1fr}}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:3px;box-shadow:var(--shadow);min-width:0}
+.card-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:9px 13px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.card-h h2{font-family:var(--f-d);font-size:16px;letter-spacing:.09em;text-transform:uppercase;margin:0;font-weight:600}
+.card-h .hint{font-size:11.5px;color:var(--ink-faint);font-family:var(--f-m)}
+
+.stage{position:relative;background:var(--panel-2);touch-action:none}
+canvas{display:block;width:100%;height:auto;cursor:grab}
+canvas.flat{cursor:default}
+canvas:active{cursor:grabbing}
+canvas.flat:active{cursor:default}
+.eqn{padding:10px 13px;border-top:1px solid var(--line);font-size:14px;overflow-x:auto}
+
+.ctrl{display:flex;gap:9px;align-items:center;padding:11px 13px;flex-wrap:wrap;border-top:1px solid var(--line)}
+.btn{font-family:var(--f-d);font-size:15px;letter-spacing:.06em;text-transform:uppercase;padding:7px 15px;
+  border-radius:2px;cursor:pointer;font-weight:600;background:var(--lo);color:var(--on-btn);border:1px solid var(--lo);transition:.14s}
+.btn:hover{filter:brightness(1.08)}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.ghost{background:transparent;color:var(--ink-soft);border-color:var(--line)}
+.btn.ghost:hover{border-color:var(--accent);color:var(--ink)}
+.btn.gold{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.sl{flex:1 1 150px;min-width:100px;accent-color:var(--accent)}
+.rd{font-family:var(--f-m);font-size:13px;color:var(--ink-soft);white-space:nowrap}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:2px;overflow:hidden}
+.seg button{font-family:var(--f-m);font-size:12.5px;padding:6px 11px;cursor:pointer;background:var(--panel-2);color:var(--ink-soft);border:0;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--lo);color:var(--on-btn);font-weight:600}
+
+.rows{padding:4px 0}
+.row{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:baseline;padding:7px 13px;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.row .k{font-family:var(--f-b);font-size:13.5px;font-weight:500;color:var(--ink-soft);white-space:nowrap}
+.row .v{font-family:var(--f-m);font-size:13.5px;text-align:right;font-variant-numeric:tabular-nums;min-width:0;overflow-x:auto;white-space:nowrap}
+.row.em{background:var(--panel-2)}
+.row.wide{grid-template-columns:1fr}
+.row.wide .v{text-align:left;white-space:normal;font-family:var(--f-b);font-size:13.5px;overflow-x:auto}
+.row.wide .v b{color:var(--ink);font-weight:600;font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;display:block;margin-bottom:2px}
+.sw{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:1px}
+.hi{font-weight:600;color:var(--accent)}
+.good{color:var(--ok);font-weight:600}
+.warn{color:var(--bad);font-weight:600}
+
+.note{border-left:3px solid var(--crit);background:var(--panel-2);padding:11px 13px;margin:0;font-size:13.5px;color:var(--ink-soft)}
+.note strong{color:var(--ink);font-weight:600}
+.note .q{display:block;margin-top:7px;color:var(--crit);font-weight:600}
+
+.test{padding:13px}
+.enun{background:var(--panel-2);border:1px solid var(--line);border-left:3px solid var(--accent);padding:11px 13px;font-size:14px;margin-bottom:12px}
+.enun b{font-family:var(--f-d);letter-spacing:.07em;text-transform:uppercase;font-size:13px;color:var(--accent);margin-right:4px}
+.qblk{border:1px solid var(--line);border-radius:2px;padding:11px 12px;margin-bottom:10px;background:var(--panel)}
+.qp{font-size:14px;margin-bottom:9px}
+.qp b{font-family:var(--f-d);color:var(--lo);letter-spacing:.05em;margin-right:3px}
+.numrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.numrow input{font-family:var(--f-m);font-size:14px;padding:7px 10px;border:1px solid var(--line);border-radius:2px;
+  background:var(--panel-2);color:var(--ink);width:min(200px,60vw)}
+.numrow input:focus{outline:2px solid var(--accent);outline-offset:1px}
+.numrow .un{font-family:var(--f-m);font-size:12.5px;color:var(--ink-faint)}
+.opts{display:grid;gap:6px}
+.opt{display:flex;gap:9px;align-items:flex-start;text-align:left;font-family:var(--f-b);font-size:13.5px;line-height:1.45;
+  padding:8px 11px;border:1px solid var(--line);border-radius:2px;background:var(--panel-2);color:var(--ink);cursor:pointer;transition:.12s}
+.opt .ltr{font-family:var(--f-d);font-weight:600;color:var(--lo);min-width:15px}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt:disabled{cursor:default}
+.opt.ok{background:var(--ok-bg);border-color:var(--ok)}
+.opt.ok .ltr{color:var(--ok)}
+.opt.bad{background:var(--bad-bg);border-color:var(--bad)}
+.opt.bad .ltr{color:var(--bad)}
+.fb{margin-top:9px;font-size:13px;padding:8px 11px;border-left:3px solid var(--line);background:var(--panel-2);color:var(--ink-soft)}
+.fb.ok{border-left-color:var(--ok)}
+.fb.bad{border-left-color:var(--bad)}
+.fb b{color:var(--ink);font-weight:600}
+.ex{padding:13px}
+.ex-nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.ex-nav button{font-family:var(--f-m);font-size:12px;padding:4px 9px;border-radius:2px;cursor:pointer;
+  background:var(--panel-2);color:var(--ink-soft);border:1px solid var(--line)}
+.ex-nav button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:600}
+.ex-q{background:var(--panel-2);border:1px solid var(--line);border-left:3px solid var(--accent);padding:11px 13px;font-size:14px;margin-bottom:12px}
+.step{border:1px solid var(--line);border-radius:2px;padding:10px 12px;margin-bottom:9px;background:var(--panel)}
+.step .lab{font-family:var(--f-d);font-size:14px;letter-spacing:.07em;text-transform:uppercase;color:var(--lo);font-weight:600;margin-bottom:5px}
+.step .body{font-size:13.5px}
+.step .math{background:var(--panel-2);padding:7px 10px;margin-top:7px;overflow-x:auto;border-radius:2px}
+.step .why{font-size:12.5px;color:var(--ink-faint);margin-top:6px;font-style:italic}
+.step.final{border-left:3px solid var(--ok);background:var(--ok-bg)}
+.step.final .lab{color:var(--ok)}
+.ex-ctl{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:4px}
+.prog{font-family:var(--f-m);font-size:12px;color:var(--ink-faint)}
+
+mjx-container{color:var(--ink)}
+mjx-container[display="true"]{margin:.35em 0!important}
+.note mjx-container,.row mjx-container,.ex-q mjx-container{color:inherit}
+
+footer{margin-top:26px;padding-top:14px;border-top:1px solid var(--line);font-size:12.5px;color:var(--ink-faint);
+  display:flex;gap:14px;flex-wrap:wrap;justify-content:space-between}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script>
+window.MathJax={
+  tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]},
+  svg:{fontCache:'global'},
+  options:{enableMenu:false},
+  startup:{typeset:false}
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
+</head>
+<body>
+<noscript><p style="font-family:system-ui;max-width:60ch;margin:40px auto;padding:0 16px">
+Esta página necesita JavaScript para dibujar las superficies y calificar el taller.
+Actívelo en su navegador y vuelva a cargarla.</p></noscript>
+<div class="wrap">
+<header>
+  <p class="eyebrow">Escuela Naval de Cadetes «Almirante Padilla» · Cálculo III</p>
+  <h1>Plotter Multivariable</h1>
+  <p class="sub">Las funciones del Volumen IV en tres dimensiones. Vea el corte que define una derivada parcial, el mapa de isocostos, el punto donde el terreno se aplana y las columnas de la integral acercándose al volumen exacto.</p>
+</header>
+
+<div class="tabs" role="tablist" id="tabs"></div>
+<div class="chips" id="chips" role="group" aria-label="Función"></div>
+
+<div class="grid" id="mainGrid">
+  <section class="card">
+    <div class="card-h">
+      <h2 id="scTitle">—</h2>
+      <span class="hint" id="stageHint">arrastre para girar · doble clic reinicia</span>
+    </div>
+    <div class="stage"><canvas id="cv" width="900" height="600"></canvas></div>
+    <div class="eqn" id="eqn"></div>
+    <div class="ctrl" id="ctrl"></div>
+  </section>
+
+  <div style="display:grid;gap:16px;min-width:0">
+    <section class="card">
+      <div class="card-h"><h2 id="readTitle">Lectura</h2><span class="hint" id="unitTag"></span></div>
+      <div class="rows" id="rows"></div>
+    </section>
+    <section class="card">
+      <div class="card-h"><h2>Qué está viendo</h2></div>
+      <p class="note" id="note"></p>
+    </section>
+  </div>
+</div>
+
+<section class="card" id="testCard" style="margin-top:16px">
+  <div class="card-h"><h2>Resuelva usted — tipo ICFES</h2><span class="prog" id="tScore"></span></div>
+  <div class="test" id="testBody"></div>
+</section>
+
+<section class="card" id="exCard" hidden style="margin-top:16px">
+  <div class="card-h"><h2>Ejercicios resueltos paso a paso</h2><span class="prog" id="exProg"></span></div>
+  <div class="ex">
+    <div class="ex-nav" id="exNav"></div>
+    <div class="ex-q" id="exQ"></div>
+    <div id="exSteps"></div>
+    <div class="ex-ctl">
+      <button class="btn" id="exNext">Mostrar siguiente paso</button>
+      <button class="btn ghost" id="exAll">Ver todo</button>
+      <button class="btn ghost" id="exReset">Reiniciar</button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>Volumen IV — Cálculo multivariable y aplicaciones · Ing. Juan Carlos Acosta Jiménez, PhD.</span>
+  <span id="footMath">\(D=f_{xx}f_{yy}-(f_{xy})^{2}\) &nbsp;·&nbsp; \(\iint_R f\,dA\)</span>
+</footer>
+</div>
+
+<script>
+(function(){
+"use strict";
+const sin=Math.sin, cos=Math.cos, sq=Math.sqrt, TAU=Math.PI*2;
+const dot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const fin=v=>Number.isFinite(v);
+const fmt=(v,d)=>!fin(v)?"—":(Math.abs(v)<5e-9?0:v).toFixed(d).replace(".",",");
+const tex=(v,d)=>fmt(v,d).replace(",","{,}");
+
+/* --- MathJax: render diferido y tolerante --- */
+let mjReady=false;
+function mj(el){
+  if(!window.MathJax||!MathJax.typesetPromise)return;
+  const run=()=>{try{MathJax.typesetPromise(el?[el]:undefined).catch(()=>{})}catch(_){}};
+  if(mjReady)run();
+  else if(MathJax.startup&&MathJax.startup.promise)
+    MathJax.startup.promise.then(()=>{mjReady=true;run()}).catch(()=>{});
+}
+
+/* ===================== FUNCIONES DEL VOLUMEN IV ===================== */
+const SC=[
+{id:"lineal", name:"Costo de abastecimiento",
+ title:"Costo lineal — un plano inclinado",
+ eqn:"$$C(x,y)=45x+70y+3000$$",
+ f:(x,y)=>45*x+70*y+3000, fx:()=>45, fy:()=>70, fxx:()=>0, fyy:()=>0, fxy:()=>0,
+ dom:[0,40,0,40], rect:[0,20,0,20], ux:"raciones", uy:"galones", uz:"miles de pesos",
+ crit:null,
+ lvKind:"Rectas paralelas (isocostos)",
+ lvEq:k=>"$$45x+70y+3000="+Math.round(k)+"\\;\\Longrightarrow\\; y=\\frac{"+(Math.round(k)-3000)+"-45x}{70}$$",
+ lvSlope:"$$\\frac{dy}{dx}=-\\frac{C_x}{C_y}=-\\frac{45}{70}=-\\tfrac{9}{14}$$",
+ lvNote:"Por cada <strong>14 raciones</strong> que se agreguen hay que quitar <strong>9 galones</strong> para no pasarse del presupuesto. Las dos cosas valen lo mismo: \\(14\\times 45=630\\) y \\(9\\times 70=630\\).",
+ test:{enun:"El oficial de abastecimiento de un batallón de Infantería de Marina pide raciones de campaña (\\(x\\)) y galones de combustible (\\(y\\)). El costo total del pedido, en miles de pesos, es \\(C(x,y)=45x+70y+3000\\), donde los 3000 corresponden al flete fijo del transporte fluvial.",
+  num:{p:"Calcule el costo de un pedido de 30 raciones y 25 galones.", r:6100, tol:0.5, u:"miles de pesos",
+       w:"\\(C(30,25)=45(30)+70(25)+3000=1350+1750+3000=6100\\)."},
+  qs:[
+   {p:"El proveedor sube el galón de 70 a 80 mil pesos, pero la ración sigue costando igual. ¿Qué le pasa a \\(C_x\\)?",
+    o:["Sube también, a 80","Sigue valiendo 45","Baja, porque ahora pesa más el combustible","Depende de cuántos galones se pidan"],
+    c:1, w:"\\(C_x\\) es lo que cuesta UNA ración más, y la ración no cambió de precio. Lo que cambia es \\(C_y\\), que pasa de 70 a 80."},
+   {p:"El comandante autoriza 10 raciones adicionales sin tocar el combustible. ¿Cuánto sube el costo del pedido?",
+    o:["450 mil pesos","700 mil pesos","45 mil pesos","3450 mil pesos"],
+    c:0, w:"Como \\(C_x=45\\) es constante, 10 raciones más cuestan \\(10\\times 45=450\\) mil pesos."}]},
+ note:"Una función lineal dibuja un <strong>plano inclinado</strong>. Sus derivadas parciales son constantes, \\(C_x=45\\) y \\(C_y=70\\): exactamente los precios unitarios.<span class='q'>Gire la vista: el plano sube más rápido hacia y, porque el galón cuesta más que la ración.</span>"},
+
+{id:"utilidad", name:"Utilidad del casino",
+ title:"Utilidad con un máximo — la cima del terreno",
+ eqn:"$$U(x,y)=80x+120y-2x^{2}-3y^{2}-500$$",
+ f:(x,y)=>80*x+120*y-2*x*x-3*y*y-500, fx:(x)=>80-4*x, fy:(x,y)=>120-6*y,
+ fxx:()=>-4, fyy:()=>-6, fxy:()=>0,
+ dom:[0,40,0,40], rect:[0,20,0,20], ux:"almuerzos (cientos)", uy:"cenas (cientos)", uz:"miles de pesos",
+ crit:{x:20,y:20},
+ lvKind:"Elipses concéntricas (isoutilidades)",
+ lvEq:k=>"$$U=k\\;\\Longleftrightarrow\\;2(x-20)^{2}+3(y-20)^{2}="+Math.round(1500-k)+"$$",
+ lvSlope:"$$\\frac{dy}{dx}=-\\frac{U_x}{U_y}=-\\frac{80-4x}{120-6y}$$",
+ lvNote:"Las elipses se cierran alrededor de \\((20,20)\\). Cuanto más al centro, mayor la utilidad: el máximo, \\(U=1500\\), es la elipse reducida a un punto.",
+ test:{enun:"El casino de oficiales vende almuerzos (\\(x\\)) y cenas (\\(y\\)), medidos en cientos de servicios. La utilidad diaria, en miles de pesos, es \\(U(x,y)=80x+120y-2x^{2}-3y^{2}-500\\). Los términos cuadráticos recogen el desgaste del personal y los sobrecostos cuando se produce de más.",
+  num:{p:"¿Cuál es la utilidad máxima que puede alcanzar el casino?", r:1500, tol:0.5, u:"miles de pesos",
+       w:"\\(U_x=80-4x=0\\Rightarrow x=20\\) y \\(U_y=120-6y=0\\Rightarrow y=20\\); entonces \\(U(20,20)=1500\\)."},
+  qs:[
+   {p:"¿Qué caracteriza al punto \\((20,20)\\) sobre esta superficie?",
+    o:["Que la utilidad allí vale cero","Que \\(U_{xx}=0\\)","Que \\(U_x\\) y \\(U_y\\) valen cero al mismo tiempo","Que el discriminante \\(D\\) vale cero"],
+    c:2, w:"En una cima el terreno está plano en las dos direcciones, así que ambas parciales se anulan. Después, \\(D=24>0\\) con \\(U_{xx}=-4<0\\) confirma que es máximo."},
+   {p:"Si el casino sube a 25 cientos de almuerzos manteniendo 20 de cenas, la utilidad marginal es \\(U_x(25)=80-4(25)=-20\\). ¿Cómo se interpreta?",
+    o:["Cada cien almuerzos adicionales le RESTAN 20 mil pesos de utilidad","La utilidad total se vuelve negativa","Cada cien almuerzos adicionales le suman 20 mil pesos","El casino está perdiendo 20 millones"],
+    c:0, w:"La parcial negativa indica que ya pasó la cima: \\(U(25,20)=1450\\), menos que los 1500 del óptimo. Vender más no siempre es ganar más."}]},
+ note:"Hay una <strong>cima</strong> en \\((20,20)\\) con utilidad \\(1500\\). Pasado ese punto el terreno baja: vender más reduce la ganancia.<span class='q'>Mire cómo la superficie se aplana justo en la cima: ahí \\(U_x\\) y \\(U_y\\) valen cero al mismo tiempo.</span>"},
+
+{id:"taller", name:"Costo del taller",
+ title:"Costo mínimo con término cruzado",
+ eqn:"$$C(x,y)=x^{2}+y^{2}-xy-6x-9y+100$$",
+ f:(x,y)=>x*x+y*y-x*y-6*x-9*y+100, fx:(x,y)=>2*x-y-6, fy:(x,y)=>2*y-x-9,
+ fxx:()=>2, fyy:()=>2, fxy:()=>-1,
+ dom:[0,14,0,14], rect:[0,7,0,8], ux:"turnos mecánicos", uy:"turnos electricistas", uz:"millones de pesos",
+ crit:{x:7,y:8},
+ lvKind:"Elipses inclinadas (isocostos)",
+ lvEq:k=>"$$x^{2}+y^{2}-xy-6x-9y+100="+Math.round(k)+"$$",
+ lvSlope:"$$\\frac{dy}{dx}=-\\frac{C_x}{C_y}=-\\frac{2x-y-6}{2y-x-9}$$",
+ lvNote:"Las elipses salen <strong>inclinadas</strong> por el término \\(-xy\\). Esa inclinación es la señal visual de que las dos especialidades se apoyan entre sí.",
+ test:{enun:"El taller de mantenimiento del batallón programa turnos de mecánicos (\\(x\\)) y de electricistas (\\(y\\)). El costo semanal, en millones de pesos, es \\(C(x,y)=x^{2}+y^{2}-xy-6x-9y+100\\). El término \\(-xy\\) aparece porque cuando las dos cuadrillas trabajan juntas se ahorran tiempo mutuamente.",
+  num:{p:"¿Cuál es el costo mínimo semanal del taller?", r:43, tol:0.5, u:"millones de pesos",
+       w:"El sistema \\(2x-y-6=0\\), \\(2y-x-9=0\\) da \\((7,8)\\), y \\(C(7,8)=43\\)."},
+  qs:[
+   {p:"¿Por qué en este taller NO se puede decidir el número de mecánicos sin mirar el de electricistas?",
+    o:["Porque el costo es cuadrático","Porque el término \\(-xy\\) amarra las dos variables","Porque el discriminante es negativo","Porque hay un costo fijo de 100"],
+    c:1, w:"\\(C_x=2x-y-6\\) contiene a \\(y\\): el costo marginal de un mecánico depende de cuántos electricistas haya. Por eso \\(C_{xy}=-1\\neq 0\\)."},
+   {p:"Se obtiene \\(D=(2)(2)-(-1)^{2}=3\\) y \\(C_{xx}=2\\). ¿Qué se concluye sobre \\((7,8)\\)?",
+    o:["Es un punto silla","El criterio no decide","Es un máximo","Es un mínimo"],
+    c:3, w:"Con \\(D>0\\) y \\(C_{xx}>0\\) el punto es mínimo. Si \\(C_{xx}\\) hubiera salido negativa sería máximo, y si \\(D<0\\), punto silla."}]},
+ note:"El fondo del hueco está en \\((7,8)\\) con costo \\(43\\) millones. El término \\(-xy\\) inclina el valle.<span class='q'>Por eso \\(C_{xy}=-1\\) y no cero. Ese término impide optimizar cada cuadrilla por separado.</span>"},
+
+{id:"simple", name:"Costo sin cruce",
+ title:"Costo mínimo, el caso más sencillo",
+ eqn:"$$C(x,y)=2x^{2}+3y^{2}-12x-18y+250$$",
+ f:(x,y)=>2*x*x+3*y*y-12*x-18*y+250, fx:(x)=>4*x-12, fy:(x,y)=>6*y-18,
+ fxx:()=>4, fyy:()=>6, fxy:()=>0,
+ dom:[0,6,0,6], rect:[0,3,0,3], ux:"insumo A", uy:"insumo B", uz:"unidades de costo",
+ crit:{x:3,y:3},
+ lvKind:"Elipses rectas (sin inclinación)",
+ lvEq:k=>"$$C=k\\;\\Longleftrightarrow\\;2(x-3)^{2}+3(y-3)^{2}="+Math.round(k-205)+"$$",
+ lvSlope:"$$\\frac{dy}{dx}=-\\frac{C_x}{C_y}=-\\frac{4x-12}{6y-18}$$",
+ lvNote:"Sin término cruzado las elipses quedan <strong>alineadas con los ejes</strong>. Compárelas con las del taller: allá iban inclinadas.",
+ test:{enun:"Una unidad de intendencia combina dos insumos, A (\\(x\\)) y B (\\(y\\)), para preparar un lote de raciones. El costo del lote es \\(C(x,y)=2x^{2}+3y^{2}-12x-18y+250\\). Aquí los dos insumos no interactúan entre sí.",
+  num:{p:"¿Cuál es el costo mínimo del lote?", r:205, tol:0.5, u:"unidades de costo",
+       w:"\\(4x-12=0\\Rightarrow x=3\\) y \\(6y-18=0\\Rightarrow y=3\\); \\(C(3,3)=18+27-36-54+250=205\\)."},
+  qs:[
+   {p:"¿Por qué este problema se resuelve más rápido que el del taller?",
+    o:["Porque \\(C_{xy}=0\\) y el sistema se parte en dos ecuaciones independientes","Porque tiene menos términos","Porque el discriminante es más grande","Porque la función es lineal"],
+    c:0, w:"Sin término cruzado, \\(C_x\\) solo tiene \\(x\\) y \\(C_y\\) solo tiene \\(y\\): cada insumo se optimiza por separado. Por eso las elipses de nivel quedan alineadas con los ejes."},
+   {p:"Si la unidad trabaja con 4 de A y 3 de B, ¿cuánto se aleja del costo mínimo?",
+    o:["No se aleja: también cuesta 205","2 unidades de costo por encima","7 unidades de costo por encima","12 unidades de costo por encima"],
+    c:1, w:"\\(C(4,3)=32+27-48-54+250=207\\), es decir 2 por encima del mínimo. Cerca del óptimo el costo sube muy despacio: el fondo del valle es casi plano."}]},
+ note:"Sin término cruzado el sistema se parte en dos ecuaciones independientes: \\(4x-12=0\\) y \\(6y-18=0\\).<span class='q'>Es el caso más fácil. El hueco está en \\((3,3)\\) y vale \\(205\\).</span>"},
+
+{id:"silla", name:"Punto silla",
+ title:"Punto silla — ni máximo ni mínimo",
+ eqn:"$$f(x,y)=x^{2}-y^{2}+100$$",
+ f:(x,y)=>x*x-y*y+100, fx:(x)=>2*x, fy:(x,y)=>-2*y,
+ fxx:()=>2, fyy:()=>-2, fxy:()=>0,
+ dom:[-5,5,-5,5], rect:[-2,2,-2,2], ux:"x", uy:"y", uz:"f",
+ crit:{x:0,y:0},
+ lvKind:"Hipérbolas (y dos rectas en el centro)",
+ lvEq:k=>"$$x^{2}-y^{2}="+Math.round(k-100)+"$$",
+ lvSlope:"$$\\frac{dy}{dx}=-\\frac{f_x}{f_y}=-\\frac{2x}{-2y}=\\frac{x}{y}$$",
+ lvNote:"En el nivel \\(k=100\\) la curva degenera en las rectas \\(y=x\\) y \\(y=-x\\), que se cruzan en el punto silla. Es la firma visual de una silla.",
+ test:{enun:"Un indicador de desempeño que depende de dos factores se modela con \\(f(x,y)=x^{2}-y^{2}+100\\). En el origen las dos derivadas parciales se anulan, pero conviene mirar con cuidado antes de llamarlo óptimo.",
+  num:{p:"Calcule el discriminante \\(D=f_{xx}f_{yy}-(f_{xy})^{2}\\) en el origen.", r:-4, tol:0.01, u:"",
+       w:"\\(f_{xx}=2\\), \\(f_{yy}=-2\\), \\(f_{xy}=0\\); entonces \\(D=(2)(-2)-0^{2}=-4\\)."},
+  qs:[
+   {p:"Con \\(f_x(0,0)=0\\), \\(f_y(0,0)=0\\) y \\(D=-4\\), ¿qué se concluye?",
+    o:["Es un mínimo, porque las parciales se anulan","Es un máximo","Es un punto silla, porque \\(D<0\\)","El criterio no decide; hay que tabular valores"],
+    c:2, w:"Que las parciales se anulen solo dice que el terreno está plano ahí. El signo de \\(D\\) es el que distingue cima, hueco y silla."},
+   {p:"Si se camina desde el origen a lo largo del eje \\(x\\) (con \\(y=0\\)), ¿qué hace el indicador?",
+    o:["Aumenta, porque queda \\(f=x^{2}+100\\)","Disminuye","Se mantiene en 100","Se vuelve negativo"],
+    c:0, w:"Por el eje \\(x\\) sube y por el eje \\(y\\) baja. Subir en una dirección y bajar en otra desde el mismo punto es justamente lo que define una silla."}]},
+ note:"En \\((0,0)\\) las dos parciales valen cero, pero <strong>no es un óptimo</strong>: sube hacia \\(x\\) y baja hacia \\(y\\).<span class='q'>Aquí \\(D=(2)(-2)-0=-4<0\\). Por eso el criterio exige calcular \\(D\\).</span>"},
+
+{id:"cobb", name:"Producción del taller",
+ title:"Producción — rendimientos decrecientes",
+ eqn:"$$P(x,y)=15\\sqrt{x}\\,\\sqrt{y}$$",
+ f:(x,y)=>15*sq(Math.max(x,0))*sq(Math.max(y,0)),
+ fx:(x,y)=>x<=0?NaN:7.5*sq(Math.max(y,0))/sq(x),
+ fy:(x,y)=>y<=0?NaN:7.5*sq(Math.max(x,0))/sq(y),
+ fxx:(x,y)=>x<=0?NaN:-3.75*sq(Math.max(y,0))/Math.pow(x,1.5),
+ fyy:(x,y)=>y<=0?NaN:-3.75*sq(Math.max(x,0))/Math.pow(y,1.5),
+ fxy:(x,y)=>(x<=0||y<=0)?NaN:3.75/(sq(x)*sq(y)),
+ dom:[0,25,0,25], rect:[1,16,1,16], ux:"mecánicos", uy:"horas", uz:"vehículos",
+ crit:null,
+ lvKind:"Hipérbolas (isocuantas)",
+ lvEq:k=>"$$15\\sqrt{x}\\sqrt{y}="+Math.round(k)+"\\;\\Longrightarrow\\; y=\\frac{"+Math.round(k*k/225)+"}{x}$$",
+ lvSlope:"$$\\frac{dy}{dx}=-\\frac{P_x}{P_y}=-\\frac{y}{x}$$",
+ lvNote:"Cada curva reúne las combinaciones que reparan <strong>la misma cantidad</strong> de vehículos: son <em>isocuantas</em>. Con 9 mecánicos y 16 horas, o con 16 y 9, se reparan los mismos 180.",
+ test:{enun:"El taller naval repara vehículos con \\(x\\) mecánicos trabajando \\(y\\) horas cada uno. La producción semanal es \\(P(x,y)=15\\sqrt{x}\\,\\sqrt{y}\\) vehículos reparados.",
+  num:{p:"¿Cuántos vehículos se reparan con 9 mecánicos y 16 horas?", r:180, tol:0.5, u:"vehículos",
+       w:"\\(P(9,16)=15\\sqrt{9}\\sqrt{16}=15(3)(4)=180\\)."},
+  qs:[
+   {p:"Con 16 horas fijas, \\(P_x\\) pasa de 15 (cuando hay 4 mecánicos) a 7,5 (cuando hay 16). ¿Qué indica eso?",
+    o:["Que los mecánicos rinden más entre más sean","Que el aporte de cada mecánico adicional va disminuyendo","Que el taller está perdiendo capacidad","Que a partir de 16 mecánicos la producción baja"],
+    c:1, w:"Es el rendimiento decreciente: la producción sigue subiendo, pero cada vez menos. Es el argumento técnico para no contratar sin límite."},
+   {p:"Las combinaciones \\((9,16)\\) y \\((16,9)\\) reparan los mismos 180 vehículos. ¿Cómo se llama la curva que une todas esas combinaciones?",
+    o:["Isocosto","Recta de presupuesto","Isocuanta","Curva de utilidad"],
+    c:2, w:"Es una curva de nivel de la función de producción, y se llama isocuanta. Su ecuación aquí es \\(xy=144\\)."}]},
+ note:"La superficie sube, pero cada vez <strong>menos</strong>: es el rendimiento decreciente.<span class='q'>En Parciales verá que el aporte de un mecánico adicional cae cuando ya hay muchos. Ese es el argumento para no contratar sin límite.</span>"},
+
+{id:"consumo", name:"Consumo por zona",
+ title:"Consumo de combustible repartido en una zona",
+ eqn:"$$f(x,y)=50+4x+3y$$",
+ f:(x,y)=>50+4*x+3*y, fx:()=>4, fy:()=>3, fxx:()=>0, fyy:()=>0, fxy:()=>0,
+ dom:[0,8,0,10], rect:[0,8,0,10], ux:"km (este)", uy:"km (norte)", uz:"litros/km²",
+ crit:null, exact:6480,
+ lvKind:"Rectas paralelas (isoconsumo)",
+ lvEq:k=>"$$50+4x+3y="+Math.round(k)+"\\;\\Longrightarrow\\; y=\\frac{"+(Math.round(k)-50)+"-4x}{3}$$",
+ lvSlope:"$$\\frac{dy}{dx}=-\\frac{f_x}{f_y}=-\\tfrac{4}{3}$$",
+ lvNote:"Cada recta une los puntos de la zona donde se gasta <strong>lo mismo por kilómetro cuadrado</strong>. Sirven para repartir el combustible por sectores en lugar de por partes iguales.",
+ test:{enun:"En una zona de patrullaje de 8 km (este) por 10 km (norte), el consumo de combustible por kilómetro cuadrado es \\(f(x,y)=50+4x+3y\\) litros. Se quiere el consumo total de la zona para planear el reabastecimiento.",
+  num:{p:"¿Cuántos litros consume toda la zona?", r:6480, tol:1, u:"litros",
+       w:"\\(\\int_{0}^{8}\\!\\int_{0}^{10}(50+4x+3y)\\,dy\\,dx=\\int_{0}^{8}(650+40x)\\,dx=5200+1280=6480\\)."},
+  qs:[
+   {p:"En la pestaña Integral doble, con \\(n=1\\) la suma de Riemann ya da el valor exacto. ¿Por qué?",
+    o:["Porque la función es lineal y el punto medio compensa exactamente lo que sobra y lo que falta","Porque la región es rectangular","Por casualidad de los números","Porque con \\(n=1\\) siempre se obtiene el exacto"],
+    c:0, w:"Sobre una superficie plana, la altura del centro es el promedio exacto. Pruebe lo mismo con «Superficie curva»: ahí sí hace falta subir \\(n\\)."},
+   {p:"El centro de la zona es \\((4,5)\\) y allí \\(f(4,5)=81\\), exactamente el consumo promedio por km². ¿A qué se debe?",
+    o:["A que la región es rectangular","A que la función es lineal","A que el promedio siempre está en el centro geométrico","A una coincidencia numérica"],
+    c:1, w:"Solo en funciones lineales el valor del centro coincide con el promedio, que aquí se obtiene como \\(6480/80=81\\) litros/km²."}]},
+ note:"El consumo total de la zona es la integral doble: \\(6480\\) litros, con promedio de \\(81\\) litros/km².<span class='q'>Vaya a Integral doble y suba \\(n\\). Como la función es lineal, el punto medio da el exacto desde \\(n=1\\).</span>"},
+
+{id:"monticulo", name:"Montículo de carga",
+ title:"Volumen de una pila de material",
+ eqn:"$$z=6-x-y$$",
+ f:(x,y)=>6-x-y, fx:()=>-1, fy:()=>-1, fxx:()=>0, fyy:()=>0, fxy:()=>0,
+ dom:[0,2,0,3], rect:[0,2,0,3], ux:"metros", uy:"metros", uz:"metros de altura",
+ crit:null, exact:21,
+ lvKind:"Rectas paralelas (curvas de igual altura)",
+ lvEq:k=>"$$6-x-y="+tex(k,1)+"\\;\\Longrightarrow\\; y="+tex(6-k,1)+"-x$$",
+ lvSlope:"$$\\frac{dy}{dx}=-\\frac{z_x}{z_y}=-\\frac{-1}{-1}=-1$$",
+ lvNote:"Son exactamente las <strong>curvas de nivel de un mapa topográfico</strong>: cada recta une los puntos de la pila que están a la misma altura.",
+ test:{enun:"Sobre una plataforma de 2 m × 3 m se descarga material de obra para una base fluvial. La altura de la pila en cada punto es \\(z=6-x-y\\) metros. Se necesita saber cuánto material hay para contratar el transporte.",
+  num:{p:"¿Cuántos metros cúbicos tiene la pila?", r:21, tol:0.5, u:"m³",
+       w:"\\(V=\\int_{0}^{2}\\!\\int_{0}^{3}(6-x-y)\\,dy\\,dx=\\int_{0}^{2}(13{,}5-3x)\\,dx=21\\ \\mathrm{m^{3}}\\)."},
+  qs:[
+   {p:"Cada volqueta transporta 6 m³. ¿Cuántas volquetas se piden?",
+    o:["3","3,5","4","5"],
+    c:2, w:"\\(21/6=3{,}5\\). Como no existe media volqueta, se piden 4: en logística este resultado siempre se redondea hacia arriba."},
+   {p:"Un suboficial calcula el volumen multiplicando la altura máxima (6 m) por el área (6 m²) y pide 36 m³. ¿Cuánto material de más estaría pidiendo?",
+    o:["15 m³ de más","21 m³ de más","No se equivoca: 36 es correcto","6 m³ de más"],
+    c:0, w:"\\(36-21=15\\ \\mathrm{m^{3}}\\), casi el doble de lo necesario. La integral doble promedia la altura real en vez de usar la máxima."}]},
+ note:"El volumen de la pila es \\(21\\ \\mathrm{m}^{3}\\). Si el material pesa \\(1{,}4\\ \\mathrm{t/m^{3}}\\), la carga pesa \\(29{,}4\\) toneladas.<span class='q'>La integral doble reemplaza aquí a una medición en terreno.</span>"},
+
+{id:"domo", name:"Superficie curva",
+ title:"Integral de una superficie curva",
+ eqn:"$$f(x,y)=100-x^{2}-y^{2}$$",
+ f:(x,y)=>100-x*x-y*y, fx:(x)=>-2*x, fy:(x,y)=>-2*y,
+ fxx:()=>-2, fyy:()=>-2, fxy:()=>0,
+ dom:[0,2,0,3], rect:[0,2,0,3], ux:"x", uy:"y", uz:"f",
+ crit:null, exact:574,
+ lvKind:"Circunferencias concéntricas",
+ lvEq:k=>"$$100-x^{2}-y^{2}="+Math.round(k)+"\\;\\Longrightarrow\\; x^{2}+y^{2}="+Math.round(100-k)+"$$",
+ lvSlope:"$$\\frac{dy}{dx}=-\\frac{f_x}{f_y}=-\\frac{-2x}{-2y}=-\\frac{x}{y}$$",
+ lvNote:"Al ser \\(x^{2}+y^{2}\\) lo único que varía, las curvas de nivel son <strong>circunferencias</strong> centradas en el origen: el mapa de un domo.",
+ test:{enun:"Una superficie curva de referencia, \\(f(x,y)=100-x^{2}-y^{2}\\), se integra sobre la región de 2 por 3. A diferencia del montículo, aquí el techo no es plano y las columnas de la suma de Riemann no calzan exacto.",
+  num:{p:"¿Cuál es el valor exacto de la integral doble sobre esa región?", r:574, tol:0.5, u:"",
+       w:"\\(\\int_{0}^{2}\\!\\int_{0}^{3}(100-x^{2}-y^{2})\\,dy\\,dx=\\int_{0}^{2}(291-3x^{2})\\,dx=582-8=574\\)."},
+  qs:[
+   {p:"Con \\(n=2\\) la suma da 575,63 y con \\(n=16\\) da 574,03. ¿Qué muestra esa secuencia?",
+    o:["Que la suma oscila alrededor del exacto","Que la suma se aleja del exacto","Que la suma se acerca al exacto, quedando siempre un poco por encima","Que la suma ya es exacta desde \\(n=2\\)"],
+    c:2, w:"Como la superficie es cóncava, el punto medio sobreestima; al subir \\(n\\) el error cae rápido, de 1,63 a 0,03."},
+   {p:"¿Por qué con el montículo \\(z=6-x-y\\) la suma sí era exacta desde el principio?",
+    o:["Porque su superficie es plana","Porque su región era más pequeña","Porque sus valores eran más bajos","Porque allí se usaron más columnas"],
+    c:0, w:"En un plano, lo que sobra de una columna compensa exactamente lo que falta en la vecina. En una superficie curva esa compensación es solo aproximada."}]},
+ note:"Aquí la superficie es <strong>curva</strong>, así que las columnas no calzan exacto y la suma se acerca poco a poco a \\(574\\).<span class='q'>Suba \\(n\\) y mire caer el error: con \\(n=2\\) sobra 1,6; con \\(n=16\\) sobra 0,03.</span>"}
+];
+
+/* ===================== EJERCICIOS RESUELTOS ===================== */
+const EX=[
+{t:"Derivadas parciales",
+ q:"Halle \\(f_x\\) y \\(f_y\\) para \\(f(x,y)=3x^{2}y+5xy^{3}-7x+2y\\).",
+ s:[
+ {l:"Paso 1 — Derivar respecto a x", b:"Trate a \\(y\\) como si fuera un número. Vaya término por término.",
+  m:"$$\\begin{aligned} 3x^{2}y &\\;\\longrightarrow\\; 3y\\cdot(2x)=6xy\\\\ 5xy^{3} &\\;\\longrightarrow\\; 5y^{3}\\cdot(1)=5y^{3}\\\\ -7x &\\;\\longrightarrow\\; -7\\\\ 2y &\\;\\longrightarrow\\; 0\\quad(\\text{no tiene }x)\\end{aligned}$$",
+  w:"Lo que no contiene la letra que estoy derivando se vuelve cero."},
+ {l:"Paso 2 — Resultado de fₓ", b:"Se juntan los cuatro términos:", m:"$$f_x=6xy+5y^{3}-7$$"},
+ {l:"Paso 3 — Derivar respecto a y", b:"Ahora trate a \\(x\\) como un número.",
+  m:"$$\\begin{aligned} 3x^{2}y &\\;\\longrightarrow\\; 3x^{2}\\cdot(1)=3x^{2}\\\\ 5xy^{3} &\\;\\longrightarrow\\; 5x\\cdot(3y^{2})=15xy^{2}\\\\ -7x &\\;\\longrightarrow\\; 0\\quad(\\text{no tiene }y)\\\\ 2y &\\;\\longrightarrow\\; 2\\end{aligned}$$"},
+ {l:"Resultado", b:"", m:"$$f_x=6xy+5y^{3}-7\\qquad f_y=3x^{2}+15xy^{2}+2$$", fin:true,
+  w:"Note cómo 2y desapareció en fₓ y −7x desapareció en f_y."}]},
+
+{t:"Evaluar en un punto",
+ q:"Con la función anterior, calcule \\(f_x(2,1)\\) y \\(f_y(2,1)\\).",
+ s:[
+ {l:"Paso 1 — Primero derivar", b:"Ya tenemos las derivadas del ejercicio anterior:",
+  m:"$$f_x=6xy+5y^{3}-7\\qquad f_y=3x^{2}+15xy^{2}+2$$",
+  w:"El orden importa: primero se deriva, después se reemplaza."},
+ {l:"Paso 2 — Reemplazar en fₓ", b:"Escriba 2 donde dice \\(x\\) y 1 donde dice \\(y\\):",
+  m:"$$\\begin{aligned} f_x(2,1)&=6(2)(1)+5(1)^{3}-7\\\\ &=12+5-7=10\\end{aligned}$$"},
+ {l:"Paso 3 — Reemplazar en f_y", b:"",
+  m:"$$\\begin{aligned} f_y(2,1)&=3(2)^{2}+15(2)(1)^{2}+2\\\\ &=12+30+2=44\\end{aligned}$$"},
+ {l:"Resultado", b:"", m:"$$f_x(2,1)=10\\qquad f_y(2,1)=44$$", fin:true,
+  w:"Si se reemplaza primero, queda un número solo y su derivada daría cero."}]},
+
+{t:"Isocosto",
+ q:"Para \\(C(x,y)=45x+70y+3000\\), encuentre todas las combinaciones de raciones y galones que cuestan exactamente \\(10\\,000\\) (miles de pesos).",
+ s:[
+ {l:"Paso 1 — Qué se está pidiendo", b:"Una <b>curva de nivel</b>: el conjunto de puntos donde la función vale siempre lo mismo. En costos se llama <b>isocosto</b>.",
+  m:"$$C(x,y)=k\\qquad\\text{con}\\qquad k=10\\,000$$"},
+ {l:"Paso 2 — Igualar y despejar", b:"Se iguala la función al valor pedido y se despeja \\(y\\):",
+  m:"$$\\begin{aligned} 45x+70y+3000&=10\\,000\\\\ 70y&=7000-45x\\\\ y&=100-\\frac{45}{70}x\\end{aligned}$$"},
+ {l:"Paso 3 — Simplificar la fracción", b:"Se divide arriba y abajo entre 5:",
+  m:"$$y=100-\\tfrac{9}{14}\\,x$$",
+  w:"Es la ecuación de una recta: pendiente −9/14 y corte en 100."},
+ {l:"Paso 4 — Leerla", b:"La pendiente dice cuánto hay que sacrificar de un insumo por cada unidad del otro:",
+  m:"$$\\text{pendiente}=-\\tfrac{9}{14}\\;\\Longrightarrow\\;\\text{por cada }14\\text{ raciones},\\;-9\\text{ galones}$$"},
+ {l:"Resultado", b:"Todas las compras sobre la recta \\(y=100-\\tfrac{9}{14}x\\) gastan el mismo presupuesto.", m:"", fin:true,
+  w:"Comprobación: 14 raciones cuestan 14×45 = 630 y 9 galones cuestan 9×70 = 630. El intercambio es justo."}]},
+
+{t:"Intercambio en el pedido",
+ q:"El costo de un pedido es \\(C(x,y)=60x+95y+4200\\) y el presupuesto autorizado es \\(21\\,000\\). ¿Cuántos galones hay que sacrificar por cada 19 raciones adicionales?",
+ s:[
+ {l:"Paso 1 — La curva de nivel", b:"Se iguala al presupuesto y se despeja \\(y\\):",
+  m:"$$\\begin{aligned} 60x+95y+4200&=21\\,000\\\\ 95y&=16\\,800-60x\\\\ y&=\\frac{16\\,800}{95}-\\frac{60}{95}x\\end{aligned}$$"},
+ {l:"Paso 2 — Simplificar", b:"Dividiendo entre 5 la fracción de la pendiente:",
+  m:"$$y\\approx 176{,}84-\\tfrac{12}{19}\\,x$$"},
+ {l:"Paso 3 — Leer la pendiente", b:"La pendiente de un isocosto es siempre menos la razón entre los costos marginales:",
+  m:"$$\\frac{dy}{dx}=-\\frac{C_x}{C_y}=-\\frac{60}{95}=-\\tfrac{12}{19}$$",
+  w:"Es decir: por cada 19 raciones que entren, salen 12 galones."},
+ {l:"Resultado", b:"Se sacrifican <b>12 galones</b> por cada 19 raciones adicionales.", m:"", fin:true,
+  w:"Comprobación: 19×60 = 1140 y 12×95 = 1140. El presupuesto no se mueve."}]},
+
+{t:"Isocuanta",
+ q:"El taller repara \\(P(x,y)=15\\sqrt{x}\\sqrt{y}\\) vehículos. Halle todas las combinaciones que reparan exactamente 180 vehículos.",
+ s:[
+ {l:"Paso 1 — Igualar al nivel", b:"Una curva de nivel de una función de producción se llama <b>isocuanta</b>:",
+  m:"$$15\\sqrt{x}\\,\\sqrt{y}=180$$"},
+ {l:"Paso 2 — Despejar la raíz", b:"Se divide todo entre 15. Recuerde que \\(\\sqrt{x}\\sqrt{y}=\\sqrt{xy}\\):",
+  m:"$$\\sqrt{xy}=\\frac{180}{15}=12$$"},
+ {l:"Paso 3 — Elevar al cuadrado", b:"Para quitar la raíz se elevan los dos lados al cuadrado:",
+  m:"$$xy=144\\qquad\\Longrightarrow\\qquad y=\\frac{144}{x}$$",
+  w:"No es una recta: es una hipérbola. Por eso las isocuantas salen curvadas."},
+ {l:"Paso 4 — Probar combinaciones", b:"Cualquier par cuyo producto sea 144 sirve:",
+  m:"$$(9,16),\\;(16,9),\\;(12,12),\\;(8,18),\\;(18,8)$$"},
+ {l:"Resultado", b:"Todas las combinaciones sobre \\(y=144/x\\) reparan los mismos 180 vehículos.", m:"", fin:true,
+  w:"Con 12 y 12 se usan 24 recursos en total; con 8 y 18, se usan 26 para el mismo resultado. El punto más equilibrado es el más eficiente."}]},
+
+{t:"Utilidad máxima",
+ q:"La utilidad de un casino es \\(U(x,y)=80x+120y-2x^{2}-3y^{2}-500\\). Halle el nivel de ventas que la maximiza.",
+ s:[
+ {l:"Paso 1 — Primeras derivadas", b:"", m:"$$U_x=80-4x\\qquad U_y=120-6y$$"},
+ {l:"Paso 2 — Igualar a cero", b:"Las dos a la vez, porque en la cima el terreno está plano:",
+  m:"$$\\begin{aligned} 80-4x=0 &\\;\\Longrightarrow\\; x=20\\\\ 120-6y=0 &\\;\\Longrightarrow\\; y=20\\end{aligned}$$",
+  w:"El punto crítico es (20, 20)."},
+ {l:"Paso 3 — Segundas derivadas", b:"", m:"$$U_{xx}=-4\\qquad U_{yy}=-6\\qquad U_{xy}=0$$",
+  w:"U_xy = 0 porque en U_x = 80 − 4x no aparece ninguna y."},
+ {l:"Paso 4 — Discriminante", b:"Este paso decide si es cima, hueco o silla:",
+  m:"$$D=U_{xx}U_{yy}-(U_{xy})^{2}=(-4)(-6)-0^{2}=24$$"},
+ {l:"Paso 5 — Clasificar", b:"Como \\(D>0\\) y \\(U_{xx}<0\\), se trata de un <b>máximo</b>.",
+  m:"$$D=24>0\\;\\text{ y }\\;U_{xx}=-4<0\\;\\Longrightarrow\\;\\textbf{MÁXIMO}$$"},
+ {l:"Paso 6 — Valor del óptimo", b:"",
+  m:"$$\\begin{aligned} U(20,20)&=1600+2400-800-1200-500\\\\ &=1500\\end{aligned}$$"},
+ {l:"Resultado", b:"La utilidad máxima es de 1500 miles de pesos vendiendo 2000 almuerzos y 2000 cenas.", m:"", fin:true,
+  w:"Vender más no es mejor: pasado ese punto los costos cuadráticos se comen la ganancia."}]},
+
+{t:"Costo mínimo",
+ q:"El costo de un taller es \\(C(x,y)=x^{2}+y^{2}-xy-6x-9y+100\\). Halle la combinación de costo mínimo.",
+ s:[
+ {l:"Paso 1 — Primeras derivadas", b:"Cuidado con el término \\(-xy\\):",
+  m:"$$C_x=2x-y-6\\qquad C_y=2y-x-9$$",
+  w:"Al derivar −xy respecto a x queda −y; respecto a y queda −x."},
+ {l:"Paso 2 — Resolver el sistema", b:"De la primera ecuación despeje \\(y\\):",
+  m:"$$2x-y-6=0\\;\\Longrightarrow\\; y=2x-6$$"},
+ {l:"Paso 3 — Sustituir", b:"Lleve esa \\(y\\) a la segunda ecuación:",
+  m:"$$\\begin{aligned} 2(2x-6)-x-9&=0\\\\ 4x-12-x-9&=0\\\\ 3x-21&=0\\\\ x&=7\\end{aligned}$$",
+  w:"Y entonces y = 2(7) − 6 = 8. El punto crítico es (7, 8)."},
+ {l:"Paso 4 — Segundas derivadas y D", b:"",
+  m:"$$C_{xx}=2,\\quad C_{yy}=2,\\quad C_{xy}=-1$$$$D=(2)(2)-(-1)^{2}=3$$"},
+ {l:"Paso 5 — Clasificar", b:"Como \\(D>0\\) y \\(C_{xx}>0\\), es un <b>mínimo</b>.",
+  m:"$$D=3>0\\;\\text{ y }\\;C_{xx}=2>0\\;\\Longrightarrow\\;\\textbf{MÍNIMO}$$"},
+ {l:"Paso 6 — Valor", b:"",
+  m:"$$C(7,8)=49+64-56-42-72+100=43$$"},
+ {l:"Resultado", b:"El costo mínimo es 43 millones con 7 turnos de mecánicos y 8 de electricistas.", m:"", fin:true,
+  w:"El término −xy dice que las dos especialidades se ayudan: por eso el óptimo no es usar lo menos posible de cada una."}]},
+
+{t:"Integral doble",
+ q:"Calcule \\(\\displaystyle\\int_{0}^{2}\\!\\!\\int_{0}^{3}(x+2y)\\,dy\\,dx\\).",
+ s:[
+ {l:"Paso 1 — La integral de adentro", b:"Es respecto a \\(y\\), por el \\(dy\\). La \\(x\\) se trata como un número.",
+  m:"$$\\int_{0}^{3}(x+2y)\\,dy$$",
+  w:"La antiderivada de x respecto a y es xy, igual que ∫5 dy = 5y."},
+ {l:"Paso 2 — Antiderivada", b:"", m:"$$\\int(x+2y)\\,dy=xy+y^{2}$$"},
+ {l:"Paso 3 — Evaluar los límites de adentro", b:"Sustituya \\(y=3\\), luego \\(y=0\\), y reste:",
+  m:"$$\\Big[xy+y^{2}\\Big]_{0}^{3}=(3x+9)-(0)=3x+9$$",
+  w:"Ya no queda ninguna y: eso siempre debe pasar."},
+ {l:"Paso 4 — La integral de afuera", b:"Ahora respecto a \\(x\\):",
+  m:"$$\\int_{0}^{2}(3x+9)\\,dx=\\left[\\frac{3x^{2}}{2}+9x\\right]_{0}^{2}=6+18=24$$"},
+ {l:"Resultado", b:"La integral vale <b>24</b>.", m:"", fin:true,
+  w:"Sobre un rectángulo el resultado siempre es un número. Si le queda una letra, faltó evaluar un límite."}]},
+
+{t:"Volumen y logística",
+ q:"Una pila de material sobre una plataforma de 2 m × 3 m tiene altura \\(z=6-x-y\\). Halle el volumen y cuántas volquetas de 6 m³ se necesitan.",
+ s:[
+ {l:"Paso 1 — Plantear", b:"El volumen bajo una superficie es la integral doble sobre la región:",
+  m:"$$V=\\int_{0}^{2}\\!\\!\\int_{0}^{3}(6-x-y)\\,dy\\,dx$$"},
+ {l:"Paso 2 — Integral de adentro (respecto a y)", b:"",
+  m:"$$\\begin{aligned}\\int_{0}^{3}(6-x-y)\\,dy&=\\left[6y-xy-\\frac{y^{2}}{2}\\right]_{0}^{3}\\\\&=18-3x-4{,}5=13{,}5-3x\\end{aligned}$$"},
+ {l:"Paso 3 — Integral de afuera (respecto a x)", b:"",
+  m:"$$\\int_{0}^{2}(13{,}5-3x)\\,dx=\\Big[13{,}5x-1{,}5x^{2}\\Big]_{0}^{2}=27-6=21$$"},
+ {l:"Paso 4 — Llevarlo a la decisión", b:"Cada volqueta transporta 6 m³:",
+  m:"$$\\frac{21}{6}=3{,}5\\;\\Longrightarrow\\;\\text{se piden 4 volquetas}$$"},
+ {l:"Resultado", b:"Se requieren 21 m³ de material, es decir <b>4 volquetas</b>.", m:"", fin:true,
+  w:"Con el espesor máximo (6 m) por el área (6 m²) se habrían pedido 36 m³: casi el doble de lo necesario."}]},
+
+{t:"Integral triple",
+ q:"Calcule \\(\\displaystyle\\int_{0}^{1}\\!\\!\\int_{0}^{3}\\!\\!\\int_{0}^{2}(x+y+z)\\,dz\\,dy\\,dx\\).",
+ s:[
+ {l:"Paso 1 — Integral de adentro (respecto a z)", b:"Las letras \\(x\\) e \\(y\\) son números.",
+  m:"$$\\begin{aligned}\\int_{0}^{2}(x+y+z)\\,dz&=\\left[xz+yz+\\frac{z^{2}}{2}\\right]_{0}^{2}\\\\&=2x+2y+2\\end{aligned}$$"},
+ {l:"Paso 2 — Integral del medio (respecto a y)", b:"Ahora \\(x\\) es un número.",
+  m:"$$\\begin{aligned}\\int_{0}^{3}(2x+2y+2)\\,dy&=\\Big[2xy+y^{2}+2y\\Big]_{0}^{3}\\\\&=6x+9+6=6x+15\\end{aligned}$$"},
+ {l:"Paso 3 — Integral de afuera (respecto a x)", b:"",
+  m:"$$\\int_{0}^{1}(6x+15)\\,dx=\\Big[3x^{2}+15x\\Big]_{0}^{1}=18$$"},
+ {l:"Resultado", b:"La integral vale <b>18</b>.", m:"", fin:true,
+  w:"Fíjese en el patrón: después de cada paso desaparece una letra."}]},
+
+{t:"Carga de densidad variable",
+ q:"Un compartimiento de 2 × 3 × 4 m contiene carga de densidad \\(\\rho=5+z\\) t/m³. Halle el peso total y compárelo con densidad constante 5.",
+ s:[
+ {l:"Paso 1 — Plantear", b:"El peso es la integral triple de la densidad sobre la caja:",
+  m:"$$\\text{Peso}=\\int_{0}^{2}\\!\\!\\int_{0}^{3}\\!\\!\\int_{0}^{4}(5+z)\\,dz\\,dy\\,dx$$"},
+ {l:"Paso 2 — Adentro (respecto a z)", b:"",
+  m:"$$\\int_{0}^{4}(5+z)\\,dz=\\left[5z+\\frac{z^{2}}{2}\\right]_{0}^{4}=20+8=28$$"},
+ {l:"Paso 3 — Medio (respecto a y)", b:"El 28 ya es constante:",
+  m:"$$\\int_{0}^{3}28\\,dy=\\Big[28y\\Big]_{0}^{3}=84$$"},
+ {l:"Paso 4 — Afuera (respecto a x)", b:"", m:"$$\\int_{0}^{2}84\\,dx=\\Big[84x\\Big]_{0}^{2}=168$$"},
+ {l:"Paso 5 — Comparar", b:"Con densidad constante 5 el peso sería \\(5\\times 24=120\\) toneladas.",
+  m:"$$168-120=48\\ \\text{toneladas de diferencia}$$"},
+ {l:"Resultado", b:"La carga pesa <b>168 toneladas</b>, un 40 % más de lo que daría suponer densidad uniforme.", m:"", fin:true,
+  w:"Esas 48 toneladas extra están arriba, lo que además eleva el centro de gravedad y afecta la estabilidad del buque."}]}
+];
+
+/* ===================== ESTADO ===================== */
+const TABS=[{k:"sup",l:"Superficie"},{k:"niv",l:"Curvas de nivel"},{k:"par",l:"Parciales"},
+            {k:"opt",l:"Óptimo"},{k:"int",l:"Integral doble"},{k:"ejer",l:"Ejercicios"}];
+let tab="sup", S=SC[1], az=-0.72, el=0.52;
+let cutAxis="y", cutPos=0.5, cutPos2=0.45;
+let nDiv=4, anim=false, animT=0, spin=false;
+let lvPos=0.5;
+let exI=0, exShown=1;
+
+const cv=document.getElementById("cv"), cx=cv.getContext("2d");
+let W=900,H=600,DPR=1,CX=0,CY=0,SCL=180;
+let ZLO=0,ZHI=1;
+const off=document.createElement("canvas"), offx=off.getContext("2d");
+
+/* ---------- geometría ---------- */
+function zrange(){
+  const [x0,x1,y0,y1]=S.dom; let lo=Infinity, hi=-Infinity;
+  for(let i=0;i<=30;i++)for(let j=0;j<=30;j++){
+    const v=S.f(x0+(x1-x0)*i/30, y0+(y1-y0)*j/30);
+    if(fin(v)){lo=Math.min(lo,v);hi=Math.max(hi,v);}
+  }
+  if(!fin(lo)||hi-lo<1e-9){lo=0;hi=1;}
+  return [lo,hi];
+}
+const nx=x=>2*(x-S.dom[0])/(S.dom[1]-S.dom[0])-1;
+const ny=y=>2*(y-S.dom[2])/(S.dom[3]-S.dom[2])-1;
+const nz=z=>fin(z)?1.25*((z-ZLO)/(ZHI-ZLO))-0.45:NaN;
+const P3=(x,y,z)=>[nx(x),ny(y),nz(z)];
+function proj(p){
+  const u=[-sin(az),cos(az),0];
+  const w=[-cos(az)*sin(el),-sin(az)*sin(el),cos(el)];
+  return [CX+dot(p,u)*SCL, CY-dot(p,w)*SCL];
+}
+const depth=p=>dot(p,[cos(az)*cos(el), sin(az)*cos(el), sin(el)]);
+
+function hex2rgb(h){h=h.replace("#","");return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];}
+function rampRGB(t){
+  const a=hex2rgb(css("--lo")), b=hex2rgb(css("--hi"));
+  t=Math.max(0,Math.min(1,t));
+  return [a[0]+(b[0]-a[0])*t, a[1]+(b[1]-a[1])*t, a[2]+(b[2]-a[2])*t];
+}
+function ramp(t,shade){
+  const c=rampRGB(t), m=0.62+0.38*shade;
+  return "rgb("+Math.round(c[0]*m)+","+Math.round(c[1]*m)+","+Math.round(c[2]*m)+")";
+}
+
+/* ---------- 3D ---------- */
+function line3(p,q,color,w){
+  const A=proj(p),B=proj(q);
+  if(!fin(A[0])||!fin(B[0]))return;
+  cx.save();cx.strokeStyle=color;cx.lineWidth=w;
+  cx.beginPath();cx.moveTo(A[0],A[1]);cx.lineTo(B[0],B[1]);cx.stroke();cx.restore();
+}
+function floorGrid(){
+  const g=css("--grid"), K=8, zb=-0.45;
+  for(let i=0;i<=K;i++){const t=-1+2*i/K;
+    line3([t,-1,zb],[t,1,zb],g,1); line3([-1,t,zb],[1,t,zb],g,1);}
+  const c=css("--ink-faint");
+  line3([-1,-1,zb],[1.12,-1,zb],c,1.6);
+  line3([-1,-1,zb],[-1,1.12,zb],c,1.6);
+  line3([-1,-1,zb],[-1,-1,0.92],c,1.6);
+  const lx=proj([1.2,-1,zb]), ly=proj([-1,1.2,zb]), lz=proj([-1,-1,1.0]);
+  cx.save();cx.fillStyle=c;cx.font='600 12px "IBM Plex Mono",monospace';
+  cx.textAlign="center";cx.textBaseline="middle";
+  cx.fillText("x",lx[0],lx[1]);cx.fillText("y",ly[0],ly[1]);cx.fillText("z",lz[0],lz[1]);
+  cx.restore();
+}
+function surface(alpha){
+  const N=26,[x0,x1,y0,y1]=S.dom,quads=[];
+  const hx=(x1-x0)/N, hy=(y1-y0)/N;
+  for(let i=0;i<N;i++)for(let j=0;j<N;j++){
+    const xa=x0+i*hx,xb=xa+hx,ya=y0+j*hy,yb=ya+hy;
+    const z=[S.f(xa,ya),S.f(xb,ya),S.f(xb,yb),S.f(xa,yb)];
+    if(!z.every(fin))continue;
+    const pts=[P3(xa,ya,z[0]),P3(xb,ya,z[1]),P3(xb,yb,z[2]),P3(xa,yb,z[3])];
+    if(!pts.every(p=>p.every(fin)))continue;
+    const zm=(z[0]+z[1]+z[2]+z[3])/4;
+    const e1=[pts[1][0]-pts[0][0],pts[1][1]-pts[0][1],pts[1][2]-pts[0][2]];
+    const e2=[pts[3][0]-pts[0][0],pts[3][1]-pts[0][1],pts[3][2]-pts[0][2]];
+    let n=[e1[1]*e2[2]-e1[2]*e2[1],e1[2]*e2[0]-e1[0]*e2[2],e1[0]*e2[1]-e1[1]*e2[0]];
+    const nl=Math.hypot(n[0],n[1],n[2])||1; n=[n[0]/nl,n[1]/nl,n[2]/nl];
+    quads.push({pts:pts,d:(depth(pts[0])+depth(pts[2]))/2,t:(zm-ZLO)/(ZHI-ZLO),
+                s:Math.abs(dot(n,[0.35,0.25,0.9]))});
+  }
+  quads.sort((a,b)=>a.d-b.d);
+  cx.save(); cx.globalAlpha=alpha;
+  cx.strokeStyle=css("--panel-2"); cx.lineWidth=0.5;
+  quads.forEach(q=>{
+    const P=q.pts.map(proj);
+    cx.fillStyle=ramp(q.t,q.s);
+    cx.beginPath(); cx.moveTo(P[0][0],P[0][1]);
+    for(let k=1;k<4;k++)cx.lineTo(P[k][0],P[k][1]);
+    cx.closePath(); cx.fill(); cx.stroke();
+  });
+  cx.restore();
+}
+/* marching squares: segmentos en coordenadas del dominio */
+function levelSegs(k,N){
+  const [x0,x1,y0,y1]=S.dom, hx=(x1-x0)/N, hy=(y1-y0)/N, out=[], g=[];
+  for(let i=0;i<=N;i++){g[i]=[];for(let j=0;j<=N;j++)g[i][j]=S.f(x0+i*hx,y0+j*hy);}
+  for(let i=0;i<N;i++)for(let j=0;j<N;j++){
+    const v=[g[i][j],g[i+1][j],g[i+1][j+1],g[i][j+1]];
+    if(!v.every(fin))continue;
+    const C=[[x0+i*hx,y0+j*hy],[x0+(i+1)*hx,y0+j*hy],[x0+(i+1)*hx,y0+(j+1)*hy],[x0+i*hx,y0+(j+1)*hy]];
+    const seg=[];
+    for(let e=0;e<4;e++){
+      const a=v[e],b=v[(e+1)%4];
+      if((a-k)*(b-k)<0){
+        const t=(k-a)/(b-a), p=C[e], q=C[(e+1)%4];
+        seg.push([p[0]+(q[0]-p[0])*t, p[1]+(q[1]-p[1])*t]);
+      }
+    }
+    if(seg.length===2)out.push(seg);
+  }
+  return out;
+}
+function contours3D(){
+  const zb=-0.448, LV=7;
+  cx.save(); cx.lineWidth=1.3;
+  for(let L=1;L<=LV;L++){
+    const k=ZLO+(ZHI-ZLO)*L/(LV+1);
+    cx.strokeStyle=ramp(L/(LV+1),0.85); cx.globalAlpha=.9; cx.beginPath();
+    levelSegs(k,40).forEach(s=>{
+      const A=proj([nx(s[0][0]),ny(s[0][1]),zb]), B=proj([nx(s[1][0]),ny(s[1][1]),zb]);
+      cx.moveTo(A[0],A[1]); cx.lineTo(B[0],B[1]);
+    });
+    cx.stroke();
+  }
+  cx.restore();
+}
+function dot3(x,y,z,color,r,label){
+  const P=proj(P3(x,y,z)); if(!fin(P[0]))return;
+  cx.save();
+  cx.fillStyle=color; cx.strokeStyle=css("--panel"); cx.lineWidth=2;
+  cx.beginPath(); cx.arc(P[0],P[1],r,0,TAU); cx.fill(); cx.stroke();
+  if(label){cx.fillStyle=color;cx.font='600 12px "Barlow",sans-serif';
+    cx.textAlign="center";cx.textBaseline="bottom";cx.fillText(label,P[0],P[1]-r-4);}
+  cx.restore();
+}
+function cutValue(){
+  const [x0,x1,y0,y1]=S.dom;
+  return cutAxis==="y"? y0+(y1-y0)*cutPos : x0+(x1-x0)*cutPos;
+}
+function drawCut(){
+  const [x0,x1,y0,y1]=S.dom, N=70, c=cutValue(), col=css("--cut");
+  cx.save(); cx.globalAlpha=.16; cx.fillStyle=col;
+  const corners = cutAxis==="y"
+    ? [P3(x0,c,ZLO),P3(x1,c,ZLO),P3(x1,c,ZHI),P3(x0,c,ZHI)]
+    : [P3(c,y0,ZLO),P3(c,y1,ZLO),P3(c,y1,ZHI),P3(c,y0,ZHI)];
+  const PC=corners.map(proj);
+  cx.beginPath(); cx.moveTo(PC[0][0],PC[0][1]);
+  for(let k=1;k<4;k++)cx.lineTo(PC[k][0],PC[k][1]);
+  cx.closePath(); cx.fill(); cx.restore();
+  cx.save(); cx.strokeStyle=col; cx.lineWidth=3.2; cx.lineJoin="round";
+  cx.beginPath(); let pen=true;
+  for(let i=0;i<=N;i++){
+    const t=i/N;
+    const X=cutAxis==="y"?x0+(x1-x0)*t:c, Y=cutAxis==="y"?c:y0+(y1-y0)*t;
+    const z=S.f(X,Y);
+    if(!fin(z)){pen=true;continue}
+    const P=proj(P3(X,Y,z));
+    if(!fin(P[0])){pen=true;continue}
+    pen?cx.moveTo(P[0],P[1]):cx.lineTo(P[0],P[1]); pen=false;
+  }
+  cx.stroke(); cx.restore();
+}
+function riemann(n){
+  const [a,b,c,d]=S.rect, hx=(b-a)/n, hy=(d-c)/n; let s=0;
+  for(let i=0;i<n;i++)for(let j=0;j<n;j++){
+    const v=S.f(a+(i+0.5)*hx, c+(j+0.5)*hy); if(fin(v))s+=v;
+  }
+  return s*hx*hy;
+}
+function drawColumns(n){
+  const [a,b,c,d]=S.rect, hx=(b-a)/n, hy=(d-c)/n, base=ZLO, cols=[];
+  for(let i=0;i<n;i++)for(let j=0;j<n;j++){
+    const xm=a+(i+0.5)*hx, ym=c+(j+0.5)*hy, h=S.f(xm,ym);
+    if(!fin(h))continue;
+    cols.push({x0:a+i*hx,x1:a+(i+1)*hx,y0:c+j*hy,y1:c+(j+1)*hy,h:h,d:depth(P3(xm,ym,h))});
+  }
+  cols.sort((p,q)=>p.d-q.d);
+  const col=css("--col"); cx.save();
+  cols.forEach(k=>{
+    const T=[P3(k.x0,k.y0,k.h),P3(k.x1,k.y0,k.h),P3(k.x1,k.y1,k.h),P3(k.x0,k.y1,k.h)].map(proj);
+    const B=[P3(k.x0,k.y0,base),P3(k.x1,k.y0,base),P3(k.x1,k.y1,base),P3(k.x0,k.y1,base)].map(proj);
+    cx.globalAlpha=.42; cx.fillStyle=col; cx.strokeStyle=col; cx.lineWidth=.6;
+    for(let e=0;e<4;e++){const f=(e+1)%4;
+      cx.beginPath(); cx.moveTo(B[e][0],B[e][1]); cx.lineTo(B[f][0],B[f][1]);
+      cx.lineTo(T[f][0],T[f][1]); cx.lineTo(T[e][0],T[e][1]); cx.closePath(); cx.fill(); cx.stroke();}
+    cx.globalAlpha=.88;
+    cx.beginPath(); cx.moveTo(T[0][0],T[0][1]);
+    for(let e=1;e<4;e++)cx.lineTo(T[e][0],T[e][1]);
+    cx.closePath(); cx.fill(); cx.stroke();
+  });
+  cx.restore();
+}
+function drawRect(){
+  const [a,b,c,d]=S.rect, zb=-0.45;
+  const Q=[P3(a,c,ZLO),P3(b,c,ZLO),P3(b,d,ZLO),P3(a,d,ZLO)].map(p=>proj([p[0],p[1],zb]));
+  cx.save(); cx.strokeStyle=css("--crit"); cx.lineWidth=2.2; cx.setLineDash([5,4]);
+  cx.beginPath(); cx.moveTo(Q[0][0],Q[0][1]);
+  for(let k=1;k<4;k++)cx.lineTo(Q[k][0],Q[k][1]);
+  cx.closePath(); cx.stroke(); cx.restore();
+}
+function inset(){
+  const w=Math.min(300,W*0.36), h=w*0.62, px=W-w-14, py=14;
+  const [x0,x1,y0,y1]=S.dom, c=cutValue(), N=80, pad=28;
+  const vals=[], ts=[];
+  for(let i=0;i<=N;i++){
+    const t=i/N;
+    const X=cutAxis==="y"?x0+(x1-x0)*t:c, Y=cutAxis==="y"?c:y0+(y1-y0)*t;
+    ts.push(cutAxis==="y"?X:Y); vals.push(S.f(X,Y));
+  }
+  const ok=vals.filter(fin); if(!ok.length)return;
+  const lo=Math.min.apply(null,ok), hi=Math.max.apply(null,ok), span=(hi-lo)||1;
+  const X2=t=>px+pad+(w-pad-10)*(t-ts[0])/(ts[N]-ts[0]);
+  const Y2=v=>py+h-pad-(h-pad-16)*(v-lo)/span;
+  cx.save();
+  cx.fillStyle=css("--panel"); cx.strokeStyle=css("--line"); cx.lineWidth=1;
+  cx.fillRect(px,py,w,h); cx.strokeRect(px,py,w,h);
+  cx.beginPath(); cx.moveTo(px+pad,py+10); cx.lineTo(px+pad,py+h-pad);
+  cx.lineTo(px+w-8,py+h-pad); cx.stroke();
+  cx.strokeStyle=css("--cut"); cx.lineWidth=2.4; cx.beginPath(); let pen=true;
+  for(let i=0;i<=N;i++){
+    if(!fin(vals[i])){pen=true;continue}
+    const Xp=X2(ts[i]),Yp=Y2(vals[i]);
+    pen?cx.moveTo(Xp,Yp):cx.lineTo(Xp,Yp); pen=false;
+  }
+  cx.stroke();
+  const tp=ts[0]+(ts[N]-ts[0])*cutPos2;
+  const Xq=cutAxis==="y"?tp:c, Yq=cutAxis==="y"?c:tp;
+  const fv=S.f(Xq,Yq), m=cutAxis==="y"?S.fx(Xq,Yq):S.fy(Xq,Yq);
+  if(fin(fv)&&fin(m)){
+    const dt=(ts[N]-ts[0])*0.22;
+    cx.strokeStyle=css("--crit"); cx.lineWidth=2; cx.setLineDash([5,3]);
+    cx.beginPath(); cx.moveTo(X2(tp-dt),Y2(fv-m*dt)); cx.lineTo(X2(tp+dt),Y2(fv+m*dt)); cx.stroke();
+    cx.setLineDash([]); cx.fillStyle=css("--cut");
+    cx.beginPath(); cx.arc(X2(tp),Y2(fv),4,0,TAU); cx.fill();
+  }
+  cx.fillStyle=css("--ink-soft"); cx.font='11px "Barlow",sans-serif';
+  cx.textAlign="left"; cx.textBaseline="top";
+  cx.fillText(cutAxis==="y"?"corte y = "+fmt(c,1):"corte x = "+fmt(c,1), px+8, py+6);
+  cx.textBaseline="bottom"; cx.fillText(cutAxis==="y"?"x":"y", px+w-16, py+h-8);
+  cx.restore();
+}
+
+/* ---------- MAPA 2D DE CURVAS DE NIVEL ---------- */
+function levelK(){ return ZLO+(ZHI-ZLO)*lvPos; }
+function drawLevelMap(){
+  const [x0,x1,y0,y1]=S.dom;
+  const pad={l:58,r:18,t:16,b:44};
+  const w=W-pad.l-pad.r, h=H-pad.t-pad.b;
+  const Px=x=>pad.l+w*(x-x0)/(x1-x0), Py=y=>pad.t+h-h*(y-y0)/(y1-y0);
+
+  const RW=180, RH=Math.max(60,Math.round(180*h/w));
+  off.width=RW; off.height=RH;
+  const img=offx.createImageData(RW,RH), D=img.data;
+  for(let j=0;j<RH;j++)for(let i=0;i<RW;i++){
+    const X=x0+(x1-x0)*(i+0.5)/RW, Y=y0+(y1-y0)*(1-(j+0.5)/RH);
+    const v=S.f(X,Y), o=4*(j*RW+i);
+    if(!fin(v)){D[o+3]=0;continue}
+    const c=rampRGB((v-ZLO)/(ZHI-ZLO));
+    D[o]=c[0];D[o+1]=c[1];D[o+2]=c[2];D[o+3]=84;
+  }
+  offx.putImageData(img,0,0);
+  cx.save(); cx.imageSmoothingEnabled=true;
+  cx.drawImage(off,pad.l,pad.t,w,h); cx.restore();
+
+  cx.save(); cx.strokeStyle=css("--grid"); cx.lineWidth=1;
+  for(let i=0;i<=5;i++){
+    const X=x0+(x1-x0)*i/5, Y=y0+(y1-y0)*i/5;
+    cx.beginPath(); cx.moveTo(Px(X),pad.t); cx.lineTo(Px(X),pad.t+h); cx.stroke();
+    cx.beginPath(); cx.moveTo(pad.l,Py(Y)); cx.lineTo(pad.l+w,Py(Y)); cx.stroke();
+  }
+  cx.strokeStyle=css("--ink-faint"); cx.lineWidth=1.4;
+  cx.strokeRect(pad.l,pad.t,w,h);
+  cx.fillStyle=css("--ink-soft"); cx.font='11px "IBM Plex Mono",monospace';
+  cx.textAlign="center"; cx.textBaseline="top";
+  for(let i=0;i<=5;i++){const X=x0+(x1-x0)*i/5; cx.fillText(fmt(X,0),Px(X),pad.t+h+7);}
+  cx.textAlign="right"; cx.textBaseline="middle";
+  for(let i=0;i<=5;i++){const Y=y0+(y1-y0)*i/5; cx.fillText(fmt(Y,0),pad.l-7,Py(Y));}
+  cx.font='600 12px "Barlow",sans-serif';
+  cx.textAlign="center"; cx.textBaseline="bottom";
+  cx.fillText(S.ux, pad.l+w/2, H-6);
+  cx.translate(13,pad.t+h/2); cx.rotate(-Math.PI/2);
+  cx.textBaseline="top"; cx.fillText(S.uy,0,0);
+  cx.restore();
+
+  const LV=9;
+  cx.save(); cx.lineWidth=1.5;
+  for(let L=1;L<=LV;L++){
+    const k=ZLO+(ZHI-ZLO)*L/(LV+1);
+    cx.strokeStyle=ramp(L/(LV+1),0.8); cx.globalAlpha=.75; cx.beginPath();
+    levelSegs(k,110).forEach(s=>{
+      cx.moveTo(Px(s[0][0]),Py(s[0][1])); cx.lineTo(Px(s[1][0]),Py(s[1][1]));
+    });
+    cx.stroke();
+  }
+  cx.restore();
+
+  const k=levelK(), segs=levelSegs(k,160);
+  cx.save(); cx.strokeStyle=css("--cut"); cx.lineWidth=3.4; cx.lineCap="round";
+  cx.beginPath();
+  segs.forEach(s=>{cx.moveTo(Px(s[0][0]),Py(s[0][1])); cx.lineTo(Px(s[1][0]),Py(s[1][1]));});
+  cx.stroke();
+  if(segs.length){
+    const mid=segs[Math.floor(segs.length/2)][0];
+    const lx=Px(mid[0]), ly=Py(mid[1]), txt="k = "+fmt(k,0);
+    cx.font='600 12px "IBM Plex Mono",monospace';
+    const tw=cx.measureText(txt).width;
+    cx.fillStyle=css("--panel"); cx.globalAlpha=.93;
+    cx.fillRect(lx-tw/2-5,ly-19,tw+10,17);
+    cx.globalAlpha=1; cx.strokeStyle=css("--cut"); cx.lineWidth=1;
+    cx.strokeRect(lx-tw/2-5,ly-19,tw+10,17);
+    cx.fillStyle=css("--cut"); cx.textAlign="center"; cx.textBaseline="middle";
+    cx.fillText(txt,lx,ly-10);
+  }
+  cx.restore();
+
+  if(S.crit){
+    const P=[Px(S.crit.x),Py(S.crit.y)];
+    cx.save(); cx.fillStyle=css("--crit"); cx.strokeStyle=css("--panel"); cx.lineWidth=2;
+    cx.beginPath(); cx.arc(P[0],P[1],6,0,TAU); cx.fill(); cx.stroke();
+    cx.fillStyle=css("--crit"); cx.font='600 12px "Barlow",sans-serif';
+    cx.textAlign="center"; cx.textBaseline="bottom";
+    cx.fillText("("+S.crit.x+", "+S.crit.y+")",P[0],P[1]-9);
+    cx.restore();
+  }
+}
+
+/* ===================== RENDER ===================== */
+function draw(){
+  cx.save(); cx.setTransform(DPR,0,0,DPR,0,0);
+  cx.clearRect(0,0,W,H);
+  cx.fillStyle=css("--panel-2"); cx.fillRect(0,0,W,H);
+  if(tab==="niv"){ drawLevelMap(); cx.restore(); return; }
+  floorGrid();
+  if(tab==="sup"){ contours3D(); surface(1); }
+  else if(tab==="par"){ surface(0.78); drawCut(); }
+  else if(tab==="opt"){
+    contours3D(); surface(0.9);
+    if(S.crit){const z=S.f(S.crit.x,S.crit.y); dot3(S.crit.x,S.crit.y,z,css("--crit"),7,"("+S.crit.x+", "+S.crit.y+")");}
+  }
+  else if(tab==="int"){ surface(0.35); drawRect(); drawColumns(nDiv); }
+  cx.restore();
+  if(tab==="par"){ cx.save(); cx.setTransform(DPR,0,0,DPR,0,0); inset(); cx.restore(); }
+}
+
+/* ===================== PANELES ===================== */
+const rowsEl=document.getElementById("rows");
+const R=(k,v,c)=>"<div class='row'><span class='k'>"+(c?"<span class='sw' style='background:var("+c+")'></span>":"")+k+"</span><span class='v'>"+v+"</span></div>";
+const RE=(k,v)=>"<div class='row em'><span class='k'>"+k+"</span><span class='v'>"+v+"</span></div>";
+const RW=v=>"<div class='row wide'><span class='v'>"+v+"</span></div>";
+
+function readout(){
+  const u=S;
+  document.getElementById("unitTag").textContent = tab==="int"
+    ? "región "+fmt(u.rect[0],0)+"–"+fmt(u.rect[1],0)+" × "+fmt(u.rect[2],0)+"–"+fmt(u.rect[3],0)
+    : u.uz;
+  let h="", needMath=false;
+  if(tab==="sup"){
+    document.getElementById("readTitle").textContent="Lectura de la superficie";
+    const [x0,x1,y0,y1]=u.dom, mx=(x0+x1)/2, my=(y0+y1)/2;
+    h+=R("Variable x",u.ux); h+=R("Variable y",u.uy); h+=R("Resultado z",u.uz);
+    h+=R("Valor en el centro","f("+fmt(mx,0)+", "+fmt(my,0)+") = <span class='hi'>"+fmt(u.f(mx,my),1)+"</span>");
+    h+=R("Mínimo visible",fmt(ZLO,1)); h+=R("Máximo visible",fmt(ZHI,1));
+    h+=RE("Curvas de nivel","7 isolíneas en el piso");
+  }
+  else if(tab==="niv"){
+    document.getElementById("readTitle").textContent="Curva de nivel";
+    const k=levelK(); needMath=true;
+    h+=R("Tipo de curvas",u.lvKind,"--cut");
+    h+=RE("Nivel elegido","<span class='hi'>k = "+fmt(k,1)+"</span>");
+    h+=RW("<b>Ecuación de esta curva</b>"+u.lvEq(k));
+    h+=RW("<b>Pendiente (intercambio)</b>"+u.lvSlope);
+    h+=RW(u.lvNote);
+  }
+  else if(tab==="par"){
+    document.getElementById("readTitle").textContent="Derivada parcial";
+    const [x0,x1,y0,y1]=u.dom, c=cutValue();
+    const tp=cutAxis==="y"?x0+(x1-x0)*cutPos2:y0+(y1-y0)*cutPos2;
+    const X=cutAxis==="y"?tp:c, Y=cutAxis==="y"?c:tp;
+    const m=cutAxis==="y"?u.fx(X,Y):u.fy(X,Y);
+    h+=R("Corte fijo",(cutAxis==="y"?"y = ":"x = ")+fmt(c,2),"--cut");
+    h+=R("Punto evaluado","("+fmt(X,2)+", "+fmt(Y,2)+")");
+    h+=R("Valor f(x, y)",fmt(u.f(X,Y),2));
+    h+=RE(cutAxis==="y"?"Pendiente f<sub>x</sub>":"Pendiente f<sub>y</sub>","<span class='hi'>"+fmt(m,3)+"</span>");
+    h+=R("Significa",(m>0?"sube ":"baja ")+fmt(Math.abs(m),2)+" por unidad");
+    h+=R("La otra parcial",(cutAxis==="y"?"f_y = ":"f_x = ")+fmt(cutAxis==="y"?u.fy(X,Y):u.fx(X,Y),3));
+  }
+  else if(tab==="opt"){
+    document.getElementById("readTitle").textContent="Criterio de la segunda derivada";
+    if(!u.crit){
+      h+=R("Punto crítico","<span class='warn'>no tiene</span>");
+      h+=RE("Por qué","f<sub>x</sub> y f<sub>y</sub> nunca valen cero a la vez");
+      h+=R("f<sub>x</sub>",fmt(u.fx(1,1),2)); h+=R("f<sub>y</sub>",fmt(u.fy(1,1),2));
+    }else{
+      const a=u.crit.x,b=u.crit.y;
+      const A=u.fxx(a,b),B=u.fyy(a,b),C=u.fxy(a,b),Dd=A*B-C*C;
+      h+=R("Punto crítico","("+a+", "+b+")","--crit");
+      h+=R("f<sub>x</sub>(a, b)",fmt(u.fx(a,b),2)); h+=R("f<sub>y</sub>(a, b)",fmt(u.fy(a,b),2));
+      h+=R("f<sub>xx</sub>",fmt(A,2)); h+=R("f<sub>yy</sub>",fmt(B,2)); h+=R("f<sub>xy</sub>",fmt(C,2));
+      h+=RE("D = f<sub>xx</sub>f<sub>yy</sub> − (f<sub>xy</sub>)²","<span class='hi'>"+fmt(Dd,2)+"</span>");
+      let ver,cls;
+      if(Dd>1e-9&&A<0){ver="MÁXIMO";cls="good";}
+      else if(Dd>1e-9&&A>0){ver="MÍNIMO";cls="good";}
+      else if(Dd<-1e-9){ver="PUNTO SILLA";cls="warn";}
+      else {ver="NO DECIDE";cls="warn";}
+      h+=RE("Veredicto","<span class='"+cls+"'>"+ver+"</span>");
+      h+=R("Valor f(a, b)","<span class='hi'>"+fmt(u.f(a,b),2)+"</span>");
+    }
+  }
+  else if(tab==="int"){
+    document.getElementById("readTitle").textContent="Suma de Riemann";
+    const s=riemann(nDiv), ex=u.exact;
+    h+=R("Columnas","<span class='hi'>"+nDiv+" × "+nDiv+" = "+(nDiv*nDiv)+"</span>","--col");
+    h+=R("Suma de Riemann",fmt(s,3));
+    if(fin(ex)){
+      const err=Math.abs(s-ex), rel=ex!==0?100*err/Math.abs(ex):0;
+      h+=RE("Valor exacto","<span class='hi'>"+fmt(ex,0)+"</span>");
+      h+=R("Error",fmt(err,4));
+      h+=R("Error relativo","<span class='"+(rel<0.5?"good":"")+"'>"+fmt(rel,3)+" %</span>");
+    }
+    const [a,b,c,d]=u.rect, area=(b-a)*(d-c);
+    h+=R("Área de la región",fmt(area,2));
+    if(fin(ex)) h+=R("Valor promedio",fmt(ex/area,2));
+  }
+  rowsEl.innerHTML=h;
+  if(needMath) mj(rowsEl);
+}
+
+/* ===================== CONTROLES ===================== */
+const ctrlEl=document.getElementById("ctrl");
+function buildCtrl(){
+  if(tab==="sup"){
+    ctrlEl.innerHTML="<button class='btn ghost' id='spin'>Girar</button>"+
+      "<button class='btn ghost' id='reset'>Vista inicial</button>"+
+      "<span class='rd'>Arrastre el lienzo para explorar</span>";
+    document.getElementById("spin").addEventListener("click",()=>{spin=!spin;if(spin)requestAnimationFrame(tick)});
+    document.getElementById("reset").addEventListener("click",()=>{az=-0.72;el=0.52;draw()});
+  }
+  else if(tab==="niv"){
+    ctrlEl.innerHTML="<label class='rd' for='lv'>nivel k</label>"+
+      "<input class='sl' id='lv' type='range' min='0' max='100' value='"+Math.round(lvPos*100)+"'>"+
+      "<span class='rd' id='lvr'>k = "+fmt(levelK(),1)+"</span>";
+    document.getElementById("lv").addEventListener("input",e=>{
+      lvPos=+e.target.value/100;
+      document.getElementById("lvr").textContent="k = "+fmt(levelK(),1);
+      draw(); readout();
+    });
+  }
+  else if(tab==="par"){
+    ctrlEl.innerHTML=
+      "<span class='seg'><button type='button' data-ax='y' aria-pressed='"+(cutAxis==="y")+"'>∂/∂x (fijo y)</button>"+
+      "<button type='button' data-ax='x' aria-pressed='"+(cutAxis==="x")+"'>∂/∂y (fijo x)</button></span>"+
+      "<label class='rd' for='cs'>corte</label><input class='sl' id='cs' type='range' min='0' max='100' value='"+Math.round(cutPos*100)+"'>"+
+      "<label class='rd' for='ps'>punto</label><input class='sl' id='ps' type='range' min='0' max='100' value='"+Math.round(cutPos2*100)+"'>";
+    ctrlEl.querySelectorAll("button[data-ax]").forEach(b=>b.addEventListener("click",()=>{
+      cutAxis=b.dataset.ax; buildCtrl(); draw(); readout();
+    }));
+    document.getElementById("cs").addEventListener("input",e=>{cutPos=+e.target.value/100;draw();readout()});
+    document.getElementById("ps").addEventListener("input",e=>{cutPos2=+e.target.value/100;draw();readout()});
+  }
+  else if(tab==="opt"){
+    ctrlEl.innerHTML="<button class='btn ghost' id='reset2'>Vista inicial</button>"+
+      "<span class='rd'>El punto verde marca donde f<sub>x</sub> = 0 y f<sub>y</sub> = 0</span>";
+    document.getElementById("reset2").addEventListener("click",()=>{az=-0.72;el=0.52;draw()});
+  }
+  else if(tab==="int"){
+    ctrlEl.innerHTML="<button class='btn gold' id='refine'>Refinar</button>"+
+      "<label class='rd' for='ns'>n =</label><input class='sl' id='ns' type='range' min='1' max='20' value='"+nDiv+"'>"+
+      "<span class='rd' id='nr'>"+nDiv+" × "+nDiv+"</span>";
+    document.getElementById("ns").addEventListener("input",e=>{
+      nDiv=+e.target.value; document.getElementById("nr").textContent=nDiv+" × "+nDiv; draw(); readout();
+    });
+    document.getElementById("refine").addEventListener("click",()=>{
+      anim=true; nDiv=1; animT=performance.now(); requestAnimationFrame(tickAnim);
+    });
+  }
+}
+function tick(){ if(!spin)return; az+=0.006; draw(); requestAnimationFrame(tick); }
+function tickAnim(now){
+  if(!anim)return;
+  if(now-animT>260){
+    animT=now; nDiv=Math.min(20,nDiv+1);
+    const s=document.getElementById("ns"), r=document.getElementById("nr");
+    if(s)s.value=nDiv; if(r)r.textContent=nDiv+" × "+nDiv;
+    draw(); readout();
+    if(nDiv>=20){anim=false;return}
+  }
+  requestAnimationFrame(tickAnim);
+}
+
+/* ============ TALLER TIPO ICFES (uno por función) ============ */
+const ANS={}, LTR=["A","B","C","D"];
+function ansOf(id){ if(!ANS[id])ANS[id]={num:null,val:"",q:[null,null]}; return ANS[id]; }
+function scoreAll(){
+  let n=0;
+  SC.forEach(s=>{const a=ANS[s.id]; if(!a)return;
+    if(a.num==="ok")n++;
+    s.test.qs.forEach((q,i)=>{ if(a.q[i]===q.c)n++; });
+  });
+  return n+" de "+(SC.length*3)+" respuestas correctas";
+}
+function parseNum(txt){
+  let t=String(txt||"").trim().replace(/\s/g,"");
+  if(t.indexOf(",")>=0) t=t.replace(/\./g,"").replace(",",".");
+  else if(/^-?\d{1,3}(\.\d{3})+$/.test(t)) t=t.replace(/\./g,"");
+  return parseFloat(t);
+}
+function checkNum(){
+  const inp=document.getElementById("numIn"); if(!inp)return;
+  const a=ansOf(S.id); a.val=inp.value;
+  const v=parseNum(inp.value);
+  a.num=(fin(v)&&Math.abs(v-S.test.num.r)<=S.test.num.tol)?"ok":"bad";
+  renderTest(a.num==="bad");
+}
+function renderTest(focusNum){
+  const T=S.test, a=ansOf(S.id), body=document.getElementById("testBody");
+  const done=a.num==="ok";
+  let h="<div class='enun'><b>Enunciado</b>"+T.enun+"</div>";
+  h+="<div class='qblk'><div class='qp'><b>Cálculo.</b> "+T.num.p+"</div><div class='numrow'>"+
+     "<input id='numIn' type='text' inputmode='decimal' autocomplete='off' aria-label='Su resultado' placeholder='escriba su resultado' value=\""+
+       String(a.val).replace(/"/g,"&quot;")+"\""+(done?" disabled":"")+">"+
+     (T.num.u?"<span class='un'>"+T.num.u+"</span>":"")+
+     "<button class='btn' id='numGo'"+(done?" disabled":"")+">"+(done?"Correcto":"Verificar")+"</button></div>";
+  if(a.num) h+="<div class='fb "+(done?"ok":"bad")+"'><b>"+(done?"Correcto.":"Todavía no.")+"</b> "+
+     (done?T.num.w:"Revise el procedimiento y vuelva a intentarlo. Escriba solo el número; los decimales van con coma.")+"</div>";
+  h+="</div>";
+  T.qs.forEach((q,i)=>{
+    const sel=a.q[i], ansd=sel!==null&&sel!==undefined;
+    h+="<div class='qblk'><div class='qp'><b>"+(i+1)+".</b> "+q.p+"</div><div class='opts'>";
+    q.o.forEach((o,j)=>{
+      let cl="opt";
+      if(ansd){ if(j===q.c)cl+=" ok"; else if(j===sel)cl+=" bad"; }
+      h+="<button type='button' class='"+cl+"' data-q='"+i+"' data-o='"+j+"'"+(ansd?" disabled":"")+
+         "><span class='ltr'>"+LTR[j]+".</span><span>"+o+"</span></button>";
+    });
+    h+="</div>";
+    if(ansd) h+="<div class='fb "+(sel===q.c?"ok":"bad")+"'><b>"+
+       (sel===q.c?"Correcto.":"La respuesta correcta es "+LTR[q.c]+".")+"</b> "+q.w+"</div>";
+    h+="</div>";
+  });
+  const list=chipsFor(), ix=list.findIndex(s=>s.id===S.id);
+  h+="<div class='ex-ctl'>"+
+     "<button class='btn ghost' id='tPrev'"+(ix<=0?" disabled":"")+">← Anterior</button>"+
+     "<button class='btn gold' id='tNext'"+(ix>=list.length-1?" disabled":"")+">Siguiente enunciado →</button>"+
+     "<span class='prog'>Enunciado "+(ix+1)+" de "+list.length+" · "+S.name+"</span>"+
+     "<button class='btn ghost' id='tReset' style='margin-left:auto'>Borrar mis respuestas</button></div>";
+  body.innerHTML=h;
+  document.getElementById("tScore").textContent=scoreAll();
+  const go=document.getElementById("numGo"); if(go&&!done)go.addEventListener("click",checkNum);
+  const inp=document.getElementById("numIn");
+  if(inp&&!done){
+    inp.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();checkNum()}});
+    if(focusNum){try{inp.focus();inp.select()}catch(_){}}
+  }
+  body.querySelectorAll("button.opt").forEach(b=>b.addEventListener("click",()=>{
+    ansOf(S.id).q[+b.dataset.q]=+b.dataset.o; renderTest();
+  }));
+  document.getElementById("tReset").addEventListener("click",()=>{delete ANS[S.id];renderTest()});
+  const nav=d=>{const l=chipsFor(), k=l.findIndex(s=>s.id===S.id)+d;
+    if(k>=0&&k<l.length){ S=l[k]; load();
+      document.getElementById("testCard").scrollIntoView({block:"start",behavior:"smooth"}); }};
+  const pv=document.getElementById("tPrev"), nx=document.getElementById("tNext");
+  if(pv&&!pv.disabled)pv.addEventListener("click",()=>nav(-1));
+  if(nx&&!nx.disabled)nx.addEventListener("click",()=>nav(1));
+  mj(body);
+}
+
+/* ===================== EJERCICIOS ===================== */
+function renderEx(){
+  const e=EX[exI];
+  const nav=document.getElementById("exNav");
+  nav.innerHTML=EX.map((x,i)=>"<button type='button' data-i='"+i+"' aria-pressed='"+(i===exI)+"'>"+(i+1)+". "+x.t+"</button>").join("");
+  nav.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{exI=+b.dataset.i;exShown=1;renderEx()}));
+  document.getElementById("exQ").innerHTML="<strong>Enunciado.</strong> "+e.q;
+  document.getElementById("exSteps").innerHTML=e.s.slice(0,exShown).map(s=>
+    "<div class='step"+(s.fin?" final":"")+"'><div class='lab'>"+s.l+"</div>"+
+    (s.b?"<div class='body'>"+s.b+"</div>":"")+
+    (s.m?"<div class='math'>"+s.m+"</div>":"")+
+    (s.w?"<div class='why'>"+s.w+"</div>":"")+"</div>").join("");
+  document.getElementById("exProg").textContent=exShown+" de "+e.s.length+" pasos";
+  const nb=document.getElementById("exNext");
+  nb.disabled=exShown>=e.s.length;
+  nb.textContent=exShown>=e.s.length?"Ejercicio completo":"Mostrar siguiente paso";
+  mj(document.getElementById("exCard"));
+}
+document.getElementById("exNext").addEventListener("click",()=>{if(exShown<EX[exI].s.length){exShown++;renderEx()}});
+document.getElementById("exAll").addEventListener("click",()=>{exShown=EX[exI].s.length;renderEx()});
+document.getElementById("exReset").addEventListener("click",()=>{exShown=1;renderEx()});
+
+/* ===================== NAVEGACIÓN ===================== */
+const tabsEl=document.getElementById("tabs"), chipsEl=document.getElementById("chips");
+tabsEl.innerHTML=TABS.map(t=>"<button type='button' role='tab' data-k='"+t.k+"' aria-selected='"+(t.k==="sup")+"'>"+t.l+"</button>").join("");
+tabsEl.addEventListener("click",e=>{
+  const b=e.target.closest("button"); if(!b)return;
+  tab=b.dataset.k; spin=false; anim=false;
+  [].forEach.call(tabsEl.children,x=>x.setAttribute("aria-selected",String(x===b)));
+  layout();
+});
+function chipsFor(){
+  if(tab==="int") return SC.filter(s=>fin(s.exact));
+  if(tab==="opt") return SC.filter(s=>s.crit||s.id==="lineal"||s.id==="cobb");
+  return SC;
+}
+function renderChips(){
+  const list=chipsFor();
+  if(!list.find(s=>s.id===S.id)) S=list[0];
+  chipsEl.innerHTML="<span class='chips-lab'>Función</span>"+
+    list.map(s=>"<button type='button' data-id='"+s.id+"' aria-pressed='"+(s.id===S.id)+"'>"+s.name+"</button>").join("");
+}
+function markChips(){
+  chipsEl.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.id===S.id)));
+}
+chipsEl.addEventListener("click",e=>{
+  const b=e.target.closest("button"); if(!b)return;
+  const s=SC.find(x=>x.id===b.dataset.id); if(!s)return;
+  S=s; load();
+});
+
+function layout(){
+  const isEx=tab==="ejer";
+  document.getElementById("exCard").hidden=!isEx;
+  document.getElementById("mainGrid").hidden=isEx;
+  document.getElementById("testCard").hidden=isEx;
+  chipsEl.hidden=isEx;
+  if(isEx){renderEx();return}
+  renderChips(); load();
+}
+function load(){
+  markChips();
+  cv.classList.toggle("flat", tab==="niv");
+  document.getElementById("stageHint").textContent = tab==="niv"
+    ? "vista desde arriba · mueva el nivel k" : "arrastre para girar · doble clic reinicia";
+  document.getElementById("scTitle").textContent=S.title;
+  const eq=document.getElementById("eqn");
+  eq.innerHTML=S.eqn;
+  const nt=document.getElementById("note");
+  nt.innerHTML=S.note;
+  const r=zrange(); ZLO=r[0]; ZHI=r[1];
+  buildCtrl(); resize(); readout(); renderTest();
+  mj(eq); mj(nt);
+}
+
+/* arrastre */
+let drag=false,dx0=0,dy0=0;
+cv.addEventListener("pointerdown",e=>{
+  if(tab==="niv")return;
+  drag=true;spin=false;dx0=e.clientX;dy0=e.clientY;
+  try{cv.setPointerCapture(e.pointerId)}catch(_){}
+});
+cv.addEventListener("pointermove",e=>{
+  if(!drag)return;
+  az-=(e.clientX-dx0)*0.009;
+  el=Math.max(-0.25,Math.min(1.35,el+(e.clientY-dy0)*0.007));
+  dx0=e.clientX;dy0=e.clientY;draw();
+});
+cv.addEventListener("pointerup",e=>{drag=false;try{cv.releasePointerCapture(e.pointerId)}catch(_){}});
+cv.addEventListener("dblclick",()=>{if(tab!=="niv"){az=-0.72;el=0.52;draw()}});
+
+function resize(){
+  const box=cv.parentElement.getBoundingClientRect();
+  W=Math.max(300,Math.round(box.width));
+  H=Math.round(Math.max(330,Math.min(620,W*0.68)));
+  DPR=Math.min(2,window.devicePixelRatio||1);
+  cv.width=W*DPR; cv.height=H*DPR; cv.style.height=H+"px";
+  CX=W/2; CY=H/2+H*0.10; SCL=Math.min(W,H)*0.40;
+  draw();
+}
+window.addEventListener("resize",resize);
+if(window.matchMedia){
+  const mq=window.matchMedia("(prefers-color-scheme:dark)");
+  const hh=()=>draw();
+  mq.addEventListener?mq.addEventListener("change",hh):mq.addListener(hh);
+}
+layout();
+mj(document.getElementById("footMath"));
+})();
+</script>
+</body>
+</html>
